@@ -32,7 +32,6 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-RUN php artisan optimize:clear
 
 EXPOSE 10000
 
