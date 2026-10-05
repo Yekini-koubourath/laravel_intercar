@@ -32,6 +32,11 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
+RUN apt-get update && apt-get install -y nodejs npm \
+    && npm install \
+    && npm run build \
+    && rm -rf /var/lib/apt/lists/*
+
 
 EXPOSE 10000
 
