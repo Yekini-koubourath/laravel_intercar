@@ -40,6 +40,6 @@ RUN apt-get update && apt-get install -y nodejs npm \
 
 EXPOSE 10000
 
-RUN php artisan migrate --force
+RUN php artisan migrate:fresh --force
 
 CMD php artisan serve --host=0.0.0.0 --port=10000
