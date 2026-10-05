@@ -37,9 +37,6 @@ RUN apt-get update && apt-get install -y nodejs npm \
     && npm run build \
     && rm -rf /var/lib/apt/lists/*
 
-
 EXPOSE 10000
 
-RUN php artisan migrate:fresh --force
-
-CMD php artisan serve --host=0.0.0.0 --port=10000
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
