@@ -1,0 +1,37 @@
+// Couleur principale INTERCAR (violet), utilisée par les boutons, liens et éléments "primary"
+$primary: #792C70;
+
+@import "bootstrap/scss/bootstrap";
+
+// Couleurs de la marque disponibles partout dans le CSS
+:root {
+    --ic-accent: #EF7536;   // orange
+    --ic-plum: #2A0F27;     // violet très sombre
+}
+
+.bg-auth-image {
+    background-image: url('/images/auth-bg.jpg'); // Vérifie le nom de ton image dans public/images/
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+}
+
+.bg-auth-side {
+    background-color: #F8F9FC;
+}
+
+.corner-stripes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 180px;
+    height: 180px;
+    pointer-events: none;
+    z-index: 1;
+    background: 
+        /* Bande 1 : Triangle violet dans le coin supérieur */
+        linear-gradient(148deg, #5B2C6F 0%, #5B2C6F 45%, transparent 45.5%),
+        /* Bande 2 : Bande orange juste en dessous */
+        linear-gradient(148deg, transparent 40%, #F37021 40.5%, #F37021 58%, transparent 58.5%);
+}
