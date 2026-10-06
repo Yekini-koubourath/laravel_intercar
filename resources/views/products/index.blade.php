@@ -1,1098 +1,2703 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<title>Produits - INTERCAR</title>
 
-    <title>Produits - INTERCAR</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+/* ===== VARIABLES ===== */
+:root{
+  --purple-sidebar:#30173D;
+  --purple-main:#6f42c1;
+  --purple-btn:#512264;
+  --orange-active:#F37021;
+  --bg-body:#F4F5F8;
+  --card-border-radius:12px;
+}
 
-    <!-- Font Awesome 6 -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+}
 
-    <!-- Google Font Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
+body{
+  background:var(--bg-body);
+  font-family:'Inter',sans-serif;
+  color:#2D3748;
+  font-size:.875rem;
+}
 
-    <style>
-        :root {
-            --purple-sidebar: #30173D;
-            --purple-main: #5B2C6F;
-            --purple-btn: #512264;
-            --orange-active: #F37021;
-            --bg-body: #F4F5F8;
-            --card-border-radius: 12px;
-        }
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:250px;
+  background:var(--purple-sidebar);
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:1000;
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  transition:transform .25s ease;
+}
 
-        body {
-            background-color: var(--bg-body);
-            font-family: 'Inter', sans-serif;
-            color: #2D3748;
-            font-size: 0.875rem;
-        }
+.sidebar-brand{
+  padding:1.5rem 1rem 1rem;
+}
 
-        /* SIDEBAR */
+.sidebar .nav-link{
+  color:rgba(255,255,255,.7);
+  font-size:.85rem;
+  font-weight:500;
+  padding:.65rem 1rem;
+  border-radius:8px;
+  margin-bottom:3px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  transition:all .2s;
+}
 
-        .sidebar {
-            width: 250px;
-            background-color: var(--purple-sidebar);
-            min-height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            height: 100vh;
-            height: 100dvh;
-            overflow-y: auto;
-            transition: transform 0.25s ease;
-        }
+.sidebar .nav-link:hover{
+  color:#fff;
+  background:rgba(255,255,255,.08);
+}
 
-        .sidebar-brand {
-            padding: 1.5rem 1rem 1rem 1rem;
-        }
+.sidebar .nav-link.active{
+  color:#fff;
+  background:var(--orange-active);
+  font-weight:600;
+}
 
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85rem;
-            font-weight: 500;
-            padding: 0.65rem 1rem;
-            border-radius: 8px;
-            margin-bottom: 3px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s;
-        }
+.sidebar-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(26,11,46,.55);
+  z-index:999;
+}
 
-        .sidebar .nav-link:hover {
-            color: #FFFFFF;
-            background-color: rgba(255, 255, 255, 0.08);
-        }
+.sidebar-overlay.show{
+  display:block;
+}
 
-        .sidebar .nav-link.active {
-            color: #FFFFFF;
-            background-color: var(--orange-active);
-            font-weight: 600;
-        }
+/* ===== CONTENU ===== */
+.main-wrapper{
+  margin-left:250px;
+  padding:1.25rem 2rem 2rem;
+}
 
-        /* MAIN */
+.top-bar{
+  background:#fff;
+  border-radius:12px;
+  padding:.5rem 1.25rem;
+  box-shadow:0 2px 4px rgba(0,0,0,.02);
+}
 
-        .main-wrapper {
-            margin-left: 250px;
-            padding: 1.25rem 2rem 2rem 2rem;
-        }
+.search-box{
+  background:#F8F9FA;
+  border-radius:8px;
+  border:1px solid #E9ECEF;
+  min-width:0;
+  max-width:480px;
+}
 
-        /* TOP BAR */
+.search-box input{
+  min-width:0;
+}
 
-        .top-bar {
-            background-color: #FFFFFF;
-            border-radius: 12px;
-            padding: 0.5rem 1.25rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
+.search-box input::placeholder{
+  color:#A0AEC0;
+  font-size:.825rem;
+}
 
-        .search-box {
-            background-color: #F8F9FA;
-            border-radius: 8px;
-            border: 1px solid #E9ECEF;
-            min-width: 0;
-            max-width: 480px;
-        }
+.card-custom{
+  background:#fff;
+  border:none;
+  border-radius:var(--card-border-radius);
+  padding:1.25rem;
+  box-shadow:0 2px 8px rgba(0,0,0,.03);
+}
 
-        .search-box input {
-            min-width: 0;
-        }
+.table-custom{
+  min-width:1250px;
+}
 
-        .search-box input::placeholder {
-            color: #A0AEC0;
-            font-size: 0.825rem;
-        }
+.table-custom th{
+  color:#718096;
+  font-weight:500;
+  font-size:.75rem;
+  border-bottom:1px solid #EDF2F7;
+  background:#FAFAFA;
+  padding:.7rem .75rem;
+  white-space:nowrap;
+}
 
-        /* CARDS */
+.table-custom td{
+  padding:.7rem .75rem;
+  border-bottom:1px solid #EDF2F7;
+  vertical-align:middle;
+  font-size:.825rem;
+  white-space:nowrap;
+}
 
-        .card-custom {
-            background-color: #FFFFFF;
-            border: none;
-            border-radius: var(--card-border-radius);
-            padding: 1.25rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-        }
+.table-custom tbody tr:hover{
+  background:#faf9fd;
+}
 
-        /* TABLE */
+.btn-purple{
+  background:var(--purple-btn);
+  color:#fff;
+  border:none;
+  font-size:.825rem;
+  padding:.5rem 1rem;
+  border-radius:8px;
+  font-weight:500;
+}
 
-        .table-custom th {
-            color: #718096;
-            font-weight: 500;
-            font-size: 0.75rem;
-            border-bottom: 1px solid #EDF2F7;
-            background-color: #FAFAFA;
-            padding: 0.6rem 0.75rem;
-        }
+.btn-purple:hover,
+.btn-purple:focus{
+  background:#3D184C;
+  color:#fff;
+}
 
-        .table-custom td {
-            padding: 0.65rem 0.75rem;
-            border-bottom: 1px solid #EDF2F7;
-            vertical-align: middle;
-            font-size: 0.825rem;
-        }
+/* ===== MODAL ===== */
+.modal-dialog{
+  max-width:1140px;
+  margin:.75rem auto;
+}
 
-        /* BOUTON */
+.modal-dialog-scrollable{
+  height:calc(100dvh - 1.5rem);
+  max-height:none;
+}
 
-        .btn-purple {
-            background-color: var(--purple-btn);
-            color: white;
-            border: none;
-            font-size: 0.825rem;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
-        }
+.modal-dialog-scrollable .modal-content{
+  height:100%;
+  max-height:none;
+  border:none;
+  border-radius:14px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
 
-        .btn-purple:hover {
-            background-color: #3D184C;
-            color: white;
-        }
+#productForm{
+  display:flex;
+  flex-direction:column;
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+}
 
-        /* OVERLAY MOBILE */
+.modal-header{
+  border-bottom:1px solid #E9ECEF;
+  padding:1rem 1.25rem;
+  background:#fff;
+  flex:0 0 auto;
+}
 
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(26, 11, 46, 0.55);
-            z-index: 999;
-        }
+.modal-dialog-scrollable .modal-body{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  padding:1.25rem 1.25rem 2rem;
+  -webkit-overflow-scrolling:touch;
+  background:#f6f7fb;
+  scrollbar-width:thin;
+  scrollbar-color:#C9C0CE #F4F5F8;
+}
 
-        .sidebar-overlay.show {
-            display: block;
-        }
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar{
+  width:8px;
+}
 
-        /* RESPONSIVE */
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-track{
+  background:#F4F5F8;
+}
 
-        @media (max-width: 991.98px) {
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb{
+  background:#C9C0CE;
+  border-radius:10px;
+}
 
-            .sidebar {
-                transform: translateX(-100%);
-                max-width: 85vw;
-            }
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb:hover{
+  background:var(--purple-main);
+}
 
-            .sidebar.open {
-                transform: translateX(0);
-                box-shadow: 8px 0 24px rgba(0, 0, 0, 0.25);
-            }
+.modal-footer{
+  border-top:1px solid #E9ECEF;
+  padding:1rem 1.25rem;
+  background:#fff;
+  flex:0 0 auto;
+  gap:.5rem;
+}
 
-            .main-wrapper {
-                margin-left: 0;
-                padding: 1rem;
-            }
-        }
+/* ===== FORMULAIRE ===== */
+.modal-body .card{
+  border:1px solid #e8e9ef;
+  border-radius:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.03);
+}
 
-        @media (max-width: 575.98px) {
+.modal-body .card-header{
+  background:#fff;
+  border-bottom:1px solid #eeeef3;
+  padding:18px 20px;
+  font-weight:600;
+}
 
-            .main-wrapper {
-                padding: 0.75rem;
-            }
+.form-label{
+  font-size:.88rem;
+  font-weight:600;
+  margin-bottom:7px;
+}
 
-            .top-bar {
-                padding: 0.5rem 0.75rem;
-            }
+.form-control,
+.form-select{
+  min-height:44px;
+  border-color:#dddfe7;
+  border-radius:9px;
+}
 
-            .top-bar > .d-flex.gap-3 {
-                gap: 0.5rem !important;
-            }
+.form-control:focus,
+.form-select:focus{
+  border-color:#6f42c1;
+  box-shadow:0 0 0 .2rem rgba(111,66,193,.1);
+}
 
-            .card-custom {
-                padding: 1rem;
-            }
-        }
-    </style>
+textarea.form-control{
+  min-height:110px;
+}
+
+.required{
+  color:#dc3545;
+}
+
+.product-type{
+  position:relative;
+  height:100%;
+}
+
+.product-type input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.product-type-card{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding:18px;
+  border:2px solid #e5e6ec;
+  border-radius:12px;
+  background:#fff;
+  cursor:pointer;
+  transition:all .2s;
+  height:100%;
+}
+
+.product-type-card:hover{
+  border-color:#b9a4df;
+  background:#faf9fd;
+}
+
+.product-type-card.active{
+  border-color:#6f42c1;
+  background:#f8f5ff;
+}
+
+.type-icon{
+  width:48px;
+  height:48px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f0ebfa;
+  color:#6f42c1;
+  font-size:22px;
+  flex-shrink:0;
+}
+
+.product-type-card.active .type-icon{
+  background:#6f42c1;
+  color:#fff;
+}
+
+.type-title{
+  font-weight:600;
+  margin-bottom:3px;
+}
+
+.type-description{
+  font-size:.82rem;
+  color:#777b87;
+  margin:0;
+}
+
+.dynamic-section{
+  display:none;
+}
+
+.dynamic-section.show{
+  display:block;
+  animation:fadeIn .2s ease;
+}
+
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(5px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.upload-zone{
+  display:block;
+  border:2px dashed #d8dae3;
+  border-radius:12px;
+  padding:30px 20px;
+  text-align:center;
+  background:#fafafd;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.upload-zone:hover{
+  border-color:#6f42c1;
+  background:#f8f5ff;
+}
+
+.upload-icon{
+  font-size:35px;
+  color:#6f42c1;
+}
+
+.summary-item{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:9px 0;
+  border-bottom:1px solid #eeeef2;
+  font-size:.9rem;
+}
+
+.summary-item:last-child{
+  border-bottom:0;
+}
+
+.summary-label{
+  color:#777b87;
+}
+
+.summary-value{
+  font-weight:600;
+  text-align:right;
+  word-break:break-word;
+}
+
+.stock-box{
+  background:#fafafd;
+  border:1px solid #e7e8ee;
+  border-radius:10px;
+  padding:15px;
+}
+
+.status-badge{
+  background:#e9f7ef;
+  color:#198754;
+  font-size:.78rem;
+  padding:5px 9px;
+  border-radius:20px;
+}
+
+.modal-footer .btn,
+.modal-body .btn{
+  border-radius:9px;
+  min-height:42px;
+  font-weight:500;
+}
+
+.btn-primary{
+  background:#6f42c1;
+  border-color:#6f42c1;
+}
+
+.btn-primary:hover{
+  background:#5e35aa;
+  border-color:#5e35aa;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:991.98px){
+
+  .sidebar{
+    transform:translateX(-100%);
+    max-width:85vw;
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+    box-shadow:8px 0 24px rgba(0,0,0,.25);
+  }
+
+  .main-wrapper{
+    margin-left:0;
+    padding:1rem;
+  }
+
+  .modal-dialog{
+    max-width:calc(100% - 1rem);
+    margin:.5rem auto;
+  }
+
+  .modal-dialog-scrollable{
+    height:calc(100dvh - 1rem);
+  }
+}
+
+@media (max-width:575.98px){
+
+  .main-wrapper{
+    padding:.75rem;
+  }
+
+  .top-bar{
+    padding:.5rem .75rem;
+  }
+
+  .card-custom{
+    padding:1rem;
+  }
+
+  .modal-dialog,
+  .modal-dialog-scrollable{
+    width:100%;
+    max-width:none;
+    height:100dvh;
+    min-height:100dvh;
+    max-height:100dvh;
+    margin:0;
+  }
+
+  .modal-dialog-scrollable .modal-content{
+    height:100dvh;
+    border-radius:0;
+  }
+
+  .modal-dialog-scrollable .modal-body{
+    padding:1rem 1rem 2rem;
+  }
+
+  .modal-footer{
+    flex-wrap:wrap;
+  }
+
+  .modal-footer .btn{
+    flex:1;
+    min-width:130px;
+  }
+}
+</style>
 </head>
 
 <body>
 
-    <!-- SIDEBAR -->
-    @include('auth.partials.sidebar')
+@include('auth.partials.sidebar')
 
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- CONTENU PRINCIPAL -->
-    <main class="main-wrapper">
-@if(session('success'))
+<main class="main-wrapper">
+
+  @if(session('success'))
     <div class="alert alert-success" id="success-alert">
-        {{ session('success') }}
+      {{ session('success') }}
     </div>
-@endif
+  @endif
 
-@if($errors->any())
+  @if($errors->any())
     <div class="alert alert-danger" id="error-alert">
-        <ul class="mb-0">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
     </div>
-@endif
+  @endif
 
-<script>
-    setTimeout(() => {
-        const successAlert = document.getElementById('success-alert');
-        const errorAlert = document.getElementById('error-alert');
+  <!-- TOP BAR -->
+  <header class="top-bar d-flex align-items-center justify-content-between gap-2 mb-4">
 
-        if (successAlert) {
-            successAlert.remove();
-        }
+    <button type="button"
+            class="btn btn-light border d-lg-none flex-shrink-0"
+            id="sidebarToggle"
+            aria-label="Ouvrir le menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
 
-        if (errorAlert) {
-            errorAlert.remove();
-        }
-    }, 2000);
-</script>
+    <div class="search-box d-flex align-items-center px-3 py-2 flex-grow-1">
+      <i class="fa-solid fa-magnifying-glass text-muted me-2"></i>
+      <input type="text"
+             class="form-control bg-transparent border-0 p-0"
+             placeholder="Rechercher un produit, une référence, un client...">
+    </div>
 
-        <!-- TOP BAR -->
-        <header class="top-bar d-flex align-items-center justify-content-between gap-2 mb-4">
+    <div class="d-flex align-items-center gap-3 flex-shrink-0">
 
-            <!-- Bouton menu mobile -->
-            <button type="button"
-                    class="btn btn-light border d-lg-none flex-shrink-0"
-                    id="sidebarToggle"
-                    aria-label="Ouvrir le menu">
+      <div class="d-none d-md-flex align-items-center gap-2 bg-light px-3 py-2 rounded-3 border"
+           style="font-size:.8rem;">
+        <i class="fa-solid fa-location-dot text-muted"></i>
 
-                <i class="fa-solid fa-bars"></i>
+        <div>
+          <div class="fw-semibold lh-1">Boutique principale</div>
+          <div class="text-muted" style="font-size:.7rem;">
+            Cotonou, Bénin
+          </div>
+        </div>
 
-            </button>
+        <i class="fa-solid fa-chevron-down text-muted ms-2"
+           style="font-size:.7rem;"></i>
+      </div>
 
+      <button class="btn btn-light rounded-circle p-2 position-relative border"
+              type="button"
+              aria-label="Notifications">
+        <i class="fa-regular fa-bell text-secondary"></i>
+        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+      </button>
 
-            <!-- Recherche générale -->
-            <div class="search-box d-flex align-items-center px-3 py-1-5 flex-grow-1">
+      <div class="d-flex align-items-center gap-2">
 
-                <i class="fa-solid fa-magnifying-glass text-muted me-2"></i>
+        <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold"
+             style="width:36px;height:36px;background:var(--purple-sidebar);font-size:.85rem;">
+          {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+        </div>
 
-                <input type="text"
-                       class="form-control bg-transparent border-0 p-0 fs-6"
-                       placeholder="Rechercher un produit, une référence, un client...">
+        <span class="fw-semibold d-none d-sm-inline"
+              style="font-size:.85rem;">
+          {{ Auth::user()->name }}
+        </span>
 
-            </div>
+        <form method="POST"
+              action="{{ route('logout') }}"
+              class="m-0">
+          @csrf
 
+          <button type="submit"
+                  class="btn btn-light btn-sm border ms-2"
+                  title="Se déconnecter">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </form>
 
-            <!-- Actions -->
-            <div class="d-flex align-items-center gap-3 flex-shrink-0">
+      </div>
+    </div>
+  </header>
 
-                <!-- Magasin -->
-                <div class="d-none d-md-flex align-items-center gap-2 bg-light px-3 py-2 rounded-3 border"
-                     style="font-size: 0.8rem;">
+  <!-- TITRE -->
+  <div class="d-flex align-items-center justify-content-between gap-3 mb-4">
 
-                    <i class="fa-solid fa-location-dot text-muted"></i>
+    <div class="d-flex align-items-center gap-3">
 
-                    <div>
-                        <div class="fw-semibold lh-1">
-                            Magasin principal
-                        </div>
+      <div class="rounded-3 text-white d-flex align-items-center justify-content-center flex-shrink-0"
+           style="background:var(--purple-sidebar);width:42px;height:42px;">
+        <i class="fa-solid fa-box fs-5"></i>
+      </div>
 
-                        <div class="text-muted" style="font-size: 0.7rem;">
-                            Cotonou, Bénin
-                        </div>
-                    </div>
+      <div>
+        <h4 class="fw-bold mb-0" style="color:#1A202C;">
+          Produits
+        </h4>
 
-                    <i class="fa-solid fa-chevron-down text-muted ms-2"
-                       style="font-size: 0.7rem;"></i>
+        <p class="text-muted small mb-0">
+          Gérez vos véhicules et pièces détachées.
+        </p>
+      </div>
 
+    </div>
+
+    <button type="button"
+            class="btn btn-purple"
+            data-bs-toggle="modal"
+            data-bs-target="#addProductModal">
+      <i class="fa-solid fa-plus me-2"></i>
+      Ajouter un produit
+    </button>
+
+  </div>
+
+  <!-- STATISTIQUES -->
+  <div class="row g-3 mb-4">
+
+    <div class="col-12 col-md-4">
+      <div class="card-custom h-100">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+          <div>
+            <p class="text-muted mb-1">Total produits</p>
+            <h3 class="fw-bold mb-0">
+              {{ $products->count() }}
+            </h3>
+          </div>
+
+          <div class="rounded-circle bg-light p-3">
+            <i class="fa-solid fa-box fs-4 text-primary"></i>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card-custom h-100">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+          <div>
+            <p class="text-muted mb-1">Pièces détachées</p>
+            <h3 class="fw-bold mb-0">
+              {{ $products->where('type', 'piece')->count() }}
+            </h3>
+          </div>
+
+          <div class="rounded-circle bg-light p-3">
+            <i class="fa-solid fa-gears fs-4 text-warning"></i>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card-custom h-100">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+          <div>
+            <p class="text-muted mb-1">Véhicules</p>
+            <h3 class="fw-bold mb-0">
+              {{ $products->where('type', 'vehicule')->count() }}
+            </h3>
+          </div>
+
+          <div class="rounded-circle bg-light p-3">
+            <i class="fa-solid fa-car fs-4 text-success"></i>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TABLE PRODUITS -->
+  <div class="card-custom">
+
+    <div class="row g-3 mb-4">
+
+      <div class="col-12 col-md-6">
+        <div class="input-group">
+          <span class="input-group-text bg-white">
+            <i class="fa-solid fa-magnifying-glass text-muted"></i>
+          </span>
+
+          <input type="text"
+                 class="form-control"
+                 id="searchProduct"
+                 placeholder="Rechercher un produit...">
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <select class="form-select" id="filterType">
+          <option value="">Tous les types</option>
+          <option value="piece">Pièces</option>
+          <option value="vehicule">Véhicules</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <select class="form-select" id="filterStatus">
+          <option value="">Tous les statuts</option>
+          <option value="actif">Actif</option>
+          <option value="inactif">Inactif</option>
+          <option value="brouillon">Brouillon</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="table-responsive">
+
+      <table class="table table-custom align-middle mb-0"
+             id="productsTable">
+
+        <thead>
+
+          <tr>
+
+            <!-- COMMUN -->
+            <th>Référence</th>
+            <th>Produit</th>
+            <th>Marque</th>
+            <th>Type</th>
+
+            <!-- VEHICULE -->
+            <th>Modèle</th>
+            <th>Année</th>
+            <th>Carburant</th>
+            <th>Transmission</th>
+            <th>Kilométrage</th>
+
+            <!-- PIECE -->
+            <th>Réf. fabricant</th>
+            <th>Catégorie pièce</th>
+            <th>Compatibilité</th>
+            <th>Garantie</th>
+
+            <!-- COMMUN -->
+            <th>État</th>
+            <th>Prix</th>
+            <th>Stock</th>
+            <th>Statut</th>
+            <th class="text-end">Actions</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          @forelse($products as $product)
+
+            <tr data-type="{{ $product->type }}"
+                data-status="{{ $product->status }}">
+
+              <!-- ================= COMMUN ================= -->
+
+              <td class="fw-semibold">
+                {{ $product->reference }}
+              </td>
+
+              <td>
+                <div class="fw-semibold">
+                  {{ $product->name }}
                 </div>
 
+                @if(!empty($product->description))
+                  <div class="text-muted small"
+                       style="max-width:220px;overflow:hidden;text-overflow:ellipsis;">
+                    {{ $product->description }}
+                  </div>
+                @endif
+              </td>
 
-                <!-- Notifications -->
-                <button class="btn btn-light rounded-circle p-2 position-relative border">
+              <td>
+                {{ $product->brand ?: ($product->piece_brand ?? '—') }}
+              </td>
 
-                    <i class="fa-regular fa-bell text-secondary"></i>
+              <td>
+                @if($product->type === 'piece')
 
-                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                  <span class="badge bg-warning text-dark">
+                    <i class="fa-solid fa-gears me-1"></i>
+                    Pièce
+                  </span>
+
+                @else
+
+                  <span class="badge bg-info text-dark">
+                    <i class="fa-solid fa-car me-1"></i>
+                    Véhicule
+                  </span>
+
+                @endif
+              </td>
+
+
+              <!-- ================= VEHICULE ================= -->
+
+              <td>
+                @if($product->type === 'vehicule')
+                  {{ $product->vehicle_model ?: '—' }}
+                @else
+                  —
+                @endif
+              </td>
+
+              <td>
+                @if($product->type === 'vehicule')
+                  {{ $product->vehicle_year ?: '—' }}
+                @else
+                  —
+                @endif
+              </td>
+
+              <td>
+                @if($product->type === 'vehicule')
+
+                  @switch($product->fuel)
+
+                    @case('essence')
+                      Essence
+                      @break
+
+                    @case('diesel')
+                      Diesel
+                      @break
+
+                    @case('hybride')
+                      Hybride
+                      @break
+
+                    @case('electrique')
+                      Électrique
+                      @break
+
+                    @default
+                      —
+
+                  @endswitch
+
+                @else
+                  —
+                @endif
+              </td>
+
+              <td>
+                @if($product->type === 'vehicule')
+
+                  @switch($product->transmission)
+
+                    @case('manuelle')
+                      Manuelle
+                      @break
+
+                    @case('automatique')
+                      Automatique
+                      @break
+
+                    @case('cvt')
+                      CVT
+                      @break
+
+                    @default
+                      —
+
+                  @endswitch
+
+                @else
+                  —
+                @endif
+              </td>
+
+              <td>
+                @if($product->type === 'vehicule')
+
+                  @if($product->mileage !== null)
+                    {{ number_format($product->mileage, 0, ',', ' ') }} km
+                  @else
+                    —
+                  @endif
+
+                @else
+                  —
+                @endif
+              </td>
+
+
+              <!-- ================= PIECE ================= -->
+
+              <td>
+                @if($product->type === 'piece')
+                  {{ $product->manufacturer_reference ?: '—' }}
+                @else
+                  —
+                @endif
+              </td>
+
+              <td>
+                @if($product->type === 'piece')
+                  {{ $product->piece_category ?: '—' }}
+                @else
+                  —
+                @endif
+              </td>
+
+              <td>
+                @if($product->type === 'piece')
+
+                  @if(!empty($product->compatibility))
+
+                    <span title="{{ $product->compatibility }}">
+                      {{ \Illuminate\Support\Str::limit($product->compatibility, 35) }}
+                    </span>
+
+                  @else
+                    —
+                  @endif
+
+                @else
+                  —
+                @endif
+              </td>
+
+              <td>
+                @if($product->type === 'piece')
+
+                  @switch($product->warranty)
+
+                    @case('sans')
+                      Sans garantie
+                      @break
+
+                    @case('3_mois')
+                      3 mois
+                      @break
+
+                    @case('6_mois')
+                      6 mois
+                      @break
+
+                    @case('12_mois')
+                      12 mois
+                      @break
+
+                    @case('24_mois')
+                      24 mois
+                      @break
+
+                    @default
+                      —
+
+                  @endswitch
+
+                @else
+                  —
+                @endif
+              </td>
+
+
+              <!-- ================= ETAT ================= -->
+
+              <td>
+
+                @if($product->type === 'vehicule')
+
+                  @switch($product->condition)
+
+                    @case('neuf')
+                      <span class="badge bg-success">
+                        Neuf
+                      </span>
+                      @break
+
+                    @case('occasion')
+                      <span class="badge bg-warning text-dark">
+                        Occasion
+                      </span>
+                      @break
+
+                    @case('reconditionne')
+                      <span class="badge bg-info text-dark">
+                        Reconditionné
+                      </span>
+                      @break
+
+                    @default
+                      —
+
+                  @endswitch
+
+                @elseif($product->type === 'piece')
+
+                  @switch($product->condition_piece)
+
+                    @case('neuf')
+                      <span class="badge bg-success">
+                        Neuf
+                      </span>
+                      @break
+
+                    @case('occasion')
+                      <span class="badge bg-warning text-dark">
+                        Occasion
+                      </span>
+                      @break
+
+                    @case('reconditionne')
+                      <span class="badge bg-info text-dark">
+                        Reconditionné
+                      </span>
+                      @break
+
+                    @default
+                      —
+
+                  @endswitch
+
+                @else
+                  —
+                @endif
+
+              </td>
+
+
+              <!-- ================= PRIX ================= -->
+
+              <td class="fw-semibold">
+                {{ number_format($product->selling_price, 0, ',', ' ') }}
+                FCFA
+              </td>
+
+
+              <!-- ================= STOCK ================= -->
+
+              <td>
+
+                <span class="fw-semibold">
+                  {{ $product->quantity }}
+                </span>
+
+                @if($product->type === 'piece' && $product->quantity <= $product->stock_minimum)
+
+                  <span class="badge bg-danger ms-1">
+                    Stock faible
+                  </span>
+
+                @endif
+
+              </td>
+
+
+              <!-- ================= STATUT ================= -->
+
+              <td>
+
+                @if($product->status === 'actif')
+
+                  <span class="badge bg-success">
+                    Actif
+                  </span>
+
+                @elseif($product->status === 'brouillon')
+
+                  <span class="badge bg-warning text-dark">
+                    Brouillon
+                  </span>
+
+                @else
+
+                  <span class="badge bg-secondary">
+                    Inactif
+                  </span>
+
+                @endif
+
+              </td>
+
+
+              <!-- ================= ACTIONS ================= -->
+
+              <td class="text-end">
+
+                <button type="button"
+                        class="btn btn-sm btn-light border"
+                        title="Modifier">
+
+                  <i class="fa-solid fa-pen"></i>
 
                 </button>
 
+                <button type="button"
+                        class="btn btn-sm btn-light border text-danger"
+                        title="Supprimer">
 
-                <!-- Profil -->
+                  <i class="fa-solid fa-trash"></i>
+
+                </button>
+
+              </td>
+
+            </tr>
+
+          @empty
+
+            <tr>
+
+              <td colspan="18"
+                  class="text-center py-5">
+
+                <div class="mb-3">
+                  <i class="fa-solid fa-box-open fs-1 text-muted"></i>
+                </div>
+
+                <h5 class="fw-semibold">
+                  Aucun produit
+                </h5>
+
+                <p class="text-muted mb-0">
+                  Aucun produit n'a encore été enregistré.
+                </p>
+
+              </td>
+
+            </tr>
+
+          @endforelse
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</main>
+
+
+<!-- =========================================================
+     MODAL : AJOUTER UN PRODUIT
+     FORMULAIRE CONSERVE
+========================================================= -->
+
+<div class="modal fade"
+     id="addProductModal"
+     tabindex="-1"
+     aria-labelledby="addProductModalLabel"
+     aria-hidden="true">
+
+<div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+<div class="modal-content">
+
+  <!-- HEADER -->
+  <div class="modal-header">
+
+    <div>
+
+      <div class="text-muted small mb-1">
+        Produits / Catalogue
+      </div>
+
+      <h5 class="modal-title fw-bold"
+          id="addProductModalLabel">
+        Ajouter un produit
+      </h5>
+
+    </div>
+
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Fermer">
+    </button>
+
+  </div>
+
+
+  <form method="POST"
+        action="{{ route('products.store') }}"
+        id="productForm"
+        enctype="multipart/form-data">
+
+    @csrf
+
+    <input type="hidden"
+           name="stock_minimum"
+           value="0">
+
+
+    <!-- BODY SCROLLABLE -->
+    <div class="modal-body">
+
+      <div class="row g-4">
+
+
+        <!-- ================= COLONNE PRINCIPALE ================= -->
+
+        <div class="col-lg-8">
+
+
+          <!-- TYPE PRODUIT -->
+
+          <div class="card mb-4">
+
+            <div class="card-header">
+              Type de produit
+            </div>
+
+            <div class="card-body">
+
+              <div class="row g-3">
+
+                <div class="col-md-6">
+
+                  <div class="product-type">
+
+                    <input type="radio"
+                           name="type"
+                           id="typeVehicle"
+                           value="vehicule"
+                           checked>
+
+                    <label for="typeVehicle"
+                           id="vehicleTypeCard"
+                           class="product-type-card active">
+
+                      <div class="type-icon">
+                        <i class="bi bi-car-front-fill"></i>
+                      </div>
+
+                      <div>
+
+                        <div class="type-title">
+                          Véhicule
+                        </div>
+
+                        <p class="type-description">
+                          Voiture, moto, camion, utilitaire...
+                        </p>
+
+                      </div>
+
+                    </label>
+
+                  </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                  <div class="product-type">
+
+                    <input type="radio"
+                           name="type"
+                           id="typePiece"
+                           value="piece">
+
+                    <label for="typePiece"
+                           id="pieceTypeCard"
+                           class="product-type-card">
+
+                      <div class="type-icon">
+                        <i class="bi bi-gear-wide-connected"></i>
+                      </div>
+
+                      <div>
+
+                        <div class="type-title">
+                          Pièce détachée
+                        </div>
+
+                        <p class="type-description">
+                          Pièce automobile ou accessoire.
+                        </p>
+
+                      </div>
+
+                    </label>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- INFORMATIONS GENERALES -->
+
+          <div class="card mb-4">
+
+            <div class="card-header">
+              Informations générales
+            </div>
+
+            <div class="card-body">
+
+              <div class="row g-3">
+
+                <div class="col-md-8">
+
+                  <label class="form-label">
+                    Nom du produit
+                    <span class="required">*</span>
+                  </label>
+
+                  <input type="text"
+                         class="form-control"
+                         name="name"
+                         id="productName"
+                         placeholder="Ex : Toyota Corolla 2022"
+                         required>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                  <label class="form-label">
+                    Référence
+                    <span class="required">*</span>
+                  </label>
+
+                  <input type="text"
+                         class="form-control"
+                         name="reference"
+                         id="productReference"
+                         placeholder="Ex : PRD-00025"
+                         required>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                  <label class="form-label">
+                    Marque
+                    <span class="required">*</span>
+                  </label>
+
+                  <select class="form-select"
+                          name="brand"
+                          id="brand"
+                          required>
+
+                    <option value="">
+                      Sélectionner une marque
+                    </option>
+
+                    <option>Toyota</option>
+                    <option>Hyundai</option>
+                    <option>Mercedes-Benz</option>
+                    <option>Peugeot</option>
+                    <option>Renault</option>
+                    <option>Honda</option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                  <label class="form-label">
+                    Catégorie
+                    <span class="required">*</span>
+                  </label>
+
+                  <select class="form-select"
+                          name="category"
+                          id="category"
+                          required>
+
+                    <option value="">
+                      Sélectionner une catégorie
+                    </option>
+
+                    <option>Berline</option>
+                    <option>SUV</option>
+                    <option>Utilitaire</option>
+                    <option>Moto</option>
+                    <option>Moteur</option>
+                    <option>Freinage</option>
+                    <option>Électricité</option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="col-12">
+
+                  <label class="form-label">
+                    Description
+                  </label>
+
+                  <textarea class="form-control"
+                            name="description"
+                            id="description"
+                            placeholder="Décrivez brièvement le produit..."></textarea>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- INFORMATIONS VEHICULE -->
+
+          <div id="vehicleSection"
+               class="dynamic-section show">
+
+            <div class="card mb-4">
+
+              <div class="card-header">
+
                 <div class="d-flex align-items-center gap-2">
 
-                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold"
-                         style="width: 36px;
-                                height: 36px;
-                                background-color: var(--purple-sidebar);
-                                font-size: 0.85rem;">
+                  <i class="bi bi-car-front text-primary"></i>
 
-                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-
-                    </div>
-
-                    <span class="fw-semibold d-none d-sm-inline"
-                          style="font-size: 0.85rem;">
-
-                        {{ Auth::user()->name }}
-
-                    </span>
-
-                    <form method="POST"
-                          action="{{ route('logout') }}"
-                          class="m-0">
-
-                        @csrf
-
-                        <button type="submit"
-                                class="btn btn-light btn-sm border ms-2"
-                                title="Se déconnecter">
-
-                            <i class="fa-solid fa-right-from-bracket"></i>
-
-                        </button>
-
-                    </form>
+                  <span>
+                    Informations du véhicule
+                  </span>
 
                 </div>
 
-            </div>
+              </div>
 
-        </header>
 
+              <div class="card-body">
 
-        <!-- TITRE DE LA PAGE -->
-        <div class="d-flex align-items-center justify-content-between gap-3 mb-4">
+                <div class="row g-3">
 
-            <div class="d-flex align-items-center gap-3">
+                  <div class="col-md-6">
 
-                <div class="rounded-3 text-white d-flex align-items-center justify-content-center flex-shrink-0"
-                     style="background-color: var(--purple-sidebar);
-                            width: 42px;
-                            height: 42px;">
+                    <label class="form-label">
+                      Modèle
+                    </label>
 
-                    <i class="fa-solid fa-box fs-5"></i>
+                    <input type="text"
+                           class="form-control"
+                           name="vehicle_model"
+                           placeholder="Ex : Corolla">
 
-                </div>
+                  </div>
 
-                <div>
 
-                    <h4 class="fw-bold mb-0" style="color: #1A202C;">
-                        Produits
-                    </h4>
+                  <div class="col-md-3">
 
-                    <p class="text-muted small mb-0">
-                        Gérez vos véhicules et pièces détachées.
-                    </p>
+                    <label class="form-label">
+                      Année
+                    </label>
 
-                </div>
+                    <select class="form-select"
+                            name="vehicle_year">
 
-            </div>
+                      <option value="">
+                        Année
+                      </option>
 
+                      @for($year = date('Y'); $year >= 1980; $year--)
 
-            <!-- Bouton ajouter -->
-            <button type="button"
-                    class="btn btn-purple"
-                    data-bs-toggle="modal"
-                    data-bs-target="#addProductModal">
+                        <option value="{{ $year }}">
+                          {{ $year }}
+                        </option>
 
-                <i class="fa-solid fa-plus me-2"></i>
+                      @endfor
 
-                Ajouter un produit
+                    </select>
 
-            </button>
+                  </div>
 
-        </div>
 
+                  <div class="col-md-3">
 
-        <!-- STATISTIQUES -->
-        <div class="row g-3 mb-4">
+                    <label class="form-label">
+                      Carburant
+                    </label>
 
-            <!-- Total -->
-            <div class="col-12 col-md-4">
+                    <select class="form-select"
+                            name="fuel">
 
-                <div class="card-custom h-100">
+                      <option value="">
+                        Sélectionner
+                      </option>
 
-                    <div class="d-flex justify-content-between align-items-center">
+                      <option value="essence">
+                        Essence
+                      </option>
 
-                        <div>
+                      <option value="diesel">
+                        Diesel
+                      </option>
 
-                            <p class="text-muted mb-1">
-                                Total produits
-                            </p>
+                      <option value="hybride">
+                        Hybride
+                      </option>
 
-                            <h3 class="fw-bold mb-0">
-                                {{ $products->count() }}
-                            </h3>
+                      <option value="electrique">
+                        Électrique
+                      </option>
 
-                        </div>
+                    </select>
 
-                        <div class="rounded-circle bg-light p-3">
+                  </div>
 
-                            <i class="fa-solid fa-box fs-4 text-primary"></i>
 
-                        </div>
+                  <div class="col-md-4">
 
-                    </div>
+                    <label class="form-label">
+                      Transmission
+                    </label>
 
-                </div>
+                    <select class="form-select"
+                            name="transmission">
 
-            </div>
+                      <option value="">
+                        Sélectionner
+                      </option>
 
+                      <option value="manuelle">
+                        Manuelle
+                      </option>
 
-            <!-- Pièces -->
-            <div class="col-12 col-md-4">
+                      <option value="automatique">
+                        Automatique
+                      </option>
 
-                <div class="card-custom h-100">
+                      <option value="cvt">
+                        CVT
+                      </option>
 
-                    <div class="d-flex justify-content-between align-items-center">
+                    </select>
 
-                        <div>
+                  </div>
 
-                            <p class="text-muted mb-1">
-                                Pièces détachées
-                            </p>
 
-                            <h3 class="fw-bold mb-0">
-                                {{ $products->where('type', 'piece')->count() }}
-                            </h3>
+                  <div class="col-md-4">
 
-                        </div>
-
-                        <div class="rounded-circle bg-light p-3">
-
-                            <i class="fa-solid fa-gears fs-4 text-warning"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- Véhicules -->
-            <div class="col-12 col-md-4">
-
-                <div class="card-custom h-100">
-
-                    <div class="d-flex justify-content-between align-items-center">
-
-                        <div>
-
-                            <p class="text-muted mb-1">
-                                Véhicules
-                            </p>
-
-                            <h3 class="fw-bold mb-0">
-                                {{ $products->where('type', 'vehicule')->count() }}
-                            </h3>
-
-                        </div>
-
-                        <div class="rounded-circle bg-light p-3">
-
-                            <i class="fa-solid fa-car fs-4 text-success"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- TABLEAU DES PRODUITS -->
-        <div class="card-custom">
-
-            <!-- Recherche et filtres -->
-            <div class="row g-3 mb-4">
-
-                <div class="col-12 col-md-6">
+                    <label class="form-label">
+                      Kilométrage
+                    </label>
 
                     <div class="input-group">
 
-                        <span class="input-group-text bg-white">
+                      <input type="number"
+                             class="form-control"
+                             name="mileage"
+                             min="0"
+                             placeholder="0">
 
-                            <i class="fa-solid fa-magnifying-glass text-muted"></i>
-
-                        </span>
-
-                        <input type="text"
-                               class="form-control"
-                               id="searchProduct"
-                               placeholder="Rechercher un produit...">
+                      <span class="input-group-text">
+                        km
+                      </span>
 
                     </div>
 
-                </div>
+                  </div>
 
 
-                <div class="col-12 col-md-3">
+                  <div class="col-md-4">
 
-                    <select class="form-select" id="filterType">
+                    <label class="form-label">
+                      Nombre de portes
+                    </label>
 
-                        <option value="">
-                            Tous les types
-                        </option>
+                    <select class="form-select"
+                            name="doors">
 
-                        <option value="piece">
-                            Pièces
-                        </option>
-
-                        <option value="vehicule">
-                            Véhicules
-                        </option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4" selected>4</option>
+                      <option value="5">5</option>
 
                     </select>
 
-                </div>
+                  </div>
 
 
-                <div class="col-12 col-md-3">
+                  <div class="col-md-6">
 
-                    <select class="form-select" id="filterStatus">
+                    <label class="form-label">
+                      Couleur
+                    </label>
 
-                        <option value="">
-                            Tous les statuts
-                        </option>
+                    <input type="text"
+                           class="form-control"
+                           name="color"
+                           placeholder="Ex : Noir">
 
-                        <option value="actif">
-                            Actif
-                        </option>
+                  </div>
 
-                        <option value="inactif">
-                            Inactif
-                        </option>
+
+                  <div class="col-md-6">
+
+                    <label class="form-label">
+                      État
+                    </label>
+
+                    <select class="form-select"
+                            name="condition">
+
+                      <option value="neuf">
+                        Neuf
+                      </option>
+
+                      <option value="occasion">
+                        Occasion
+                      </option>
+
+                      <option value="reconditionne">
+                        Reconditionné
+                      </option>
 
                     </select>
 
-                </div>
+                  </div>
 
-            </div>
 
+                  <div class="col-md-6">
 
-            <!-- TABLE -->
-            <div class="table-responsive">
+                    <label class="form-label">
+                      Disponibilité
+                    </label>
 
-                <table class="table table-custom align-middle mb-0"
-                       id="productsTable">
+                    <select class="form-select"
+                            name="availability">
 
-                    <thead>
+                      <option value="disponible">
+                        Disponible
+                      </option>
 
-                        <tr>
+                      <option value="reserve">
+                        Réservé
+                      </option>
 
-                            <th>Référence</th>
-                            <th>Produit</th>
-                            <th>Catégorie</th>
-                            <th>Type</th>
-                            <th>Stock</th>
-                            <th>Seuil minimum</th>
-                            <th>Statut</th>
-                            <th class="text-end">Actions</th>
+                      <option value="vendu">
+                        Vendu
+                      </option>
 
-                        </tr>
+                    </select>
 
-                    </thead>
-
-
-                    <tbody>
-
-                        @forelse($products as $product)
-
-                            <tr>
-
-                                <td class="fw-semibold">
-                                    {{ $product->reference }}
-                                </td>
-
-
-                                <td>
-                                    {{ $product->name }}
-                                </td>
-
-
-                                <td>
-                                    {{ $product->category }}
-                                </td>
-
-
-                                <td>
-
-                                    @if($product->type === 'piece')
-
-                                        <span class="badge bg-warning text-dark">
-                                            Pièce
-                                        </span>
-
-                                    @else
-
-                                        <span class="badge bg-info text-dark">
-                                            Véhicule
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                <td>
-
-                                    <span class="fw-semibold">
-                                        {{ $product->quantity }}
-                                    </span>
-
-                                    @if(
-                                        $product->type === 'piece' &&
-                                        $product->quantity <= $product->stock_minimum
-                                    )
-
-                                        <span class="badge bg-danger ms-1">
-                                            Stock faible
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                <td>
-                                    {{ $product->stock_minimum }}
-                                </td>
-
-
-                                <td>
-
-                                    @if($product->status === 'actif')
-
-                                        <span class="badge bg-success">
-                                            Actif
-                                        </span>
-
-                                    @else
-
-                                        <span class="badge bg-secondary">
-                                            Inactif
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                <td class="text-end">
-
-                                    <button type="button"
-                                            class="btn btn-sm btn-light border"
-                                            title="Modifier">
-
-                                        <i class="fa-solid fa-pen"></i>
-
-                                    </button>
-
-                                    <button type="button"
-                                            class="btn btn-sm btn-light border text-danger"
-                                            title="Supprimer">
-
-                                        <i class="fa-solid fa-trash"></i>
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        @empty
-
-                            <tr>
-
-                                <td colspan="8"
-                                    class="text-center py-5">
-
-                                    <div class="mb-3">
-
-                                        <i class="fa-solid fa-box-open fs-1 text-muted"></i>
-
-                                    </div>
-
-                                    <h5 class="fw-semibold">
-                                        Aucun produit
-                                    </h5>
-
-                                    <p class="text-muted mb-0">
-                                        Aucun produit n'a encore été enregistré.
-                                    </p>
-
-                                </td>
-
-                            </tr>
-
-                        @endforelse
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </main>
-
-
-    <!-- MODAL AJOUTER PRODUIT -->
-    <div class="modal fade"
-         id="addProductModal"
-         tabindex="-1"
-         aria-hidden="true">
-
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-
-            <div class="modal-content">
-
-                <div class="modal-header">
-
-                    <h5 class="modal-title fw-bold">
-
-                        <i class="fa-solid fa-plus me-2"></i>
-
-                        Ajouter un produit
-
-                    </h5>
-
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Fermer">
-                    </button>
+                  </div>
 
                 </div>
 
-
-                <form method="POST" action="{{ route('products.store') }}">
-    @csrf
-
-                    <div class="modal-body">
-
-                        <div class="row g-3">
-
-                            <!-- Référence -->
-                            <div class="col-md-6">
-
-                                <label class="form-label">
-                                    Référence
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="reference"
-                                       placeholder="Ex : PIE-001">
-
-                            </div>
-
-
-                            <!-- Nom -->
-                            <div class="col-md-6">
-
-                                <label class="form-label">
-                                    Nom du produit
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="name"
-                                       placeholder="Ex : Filtre à huile">
-
-                            </div>
-
-
-                            <!-- Catégorie -->
-                            <div class="col-md-6">
-
-                                <label class="form-label">
-                                    Catégorie
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="category"
-                                       placeholder="Ex : Moteur">
-
-                            </div>
-
-
-                            <!-- Type -->
-                            <div class="col-md-6">
-
-                                <label class="form-label">
-                                    Type
-                                </label>
-
-                                <select class="form-select"
-                                        name="type">
-
-                                    <option value="">
-                                        Sélectionner
-                                    </option>
-
-                                    <option value="piece">
-                                        Pièce détachée
-                                    </option>
-
-                                    <option value="vehicule">
-                                        Véhicule
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-
-                            <!-- Quantité -->
-                            <div class="col-md-6">
-
-                                <label class="form-label">
-                                    Quantité initiale
-                                </label>
-
-                                <input type="number"
-                                       class="form-control"
-                                       name="quantity"
-                                       min="0"
-                                       value="0">
-
-                                <small class="text-muted">
-                                    Cette quantité correspond au stock initial.
-                                </small>
-
-                            </div>
-
-
-                            <!-- Seuil minimum -->
-                            <div class="col-md-6">
-
-                                <label class="form-label">
-                                    Seuil minimum
-                                </label>
-
-                                <input type="number"
-                                       class="form-control"
-                                       name="stock_minimum"
-                                       min="0"
-                                       value="0">
-
-                                <small class="text-muted">
-                                    Une alerte sera affichée lorsque le stock sera inférieur ou égal à ce seuil.
-                                </small>
-
-                            </div>
-
-
-                            <!-- Statut -->
-                            <div class="col-md-6">
-
-                                <label class="form-label">
-                                    Statut
-                                </label>
-
-                                <select class="form-select"
-                                        name="status">
-
-                                    <option value="actif">
-                                        Actif
-                                    </option>
-
-                                    <option value="inactif">
-                                        Inactif
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="modal-footer">
-
-                        <button type="button"
-                                class="btn btn-light border"
-                                data-bs-dismiss="modal">
-
-                            Annuler
-
-                        </button>
-
-                        <button type="submit"
-                                class="btn btn-purple">
-
-                            <i class="fa-solid fa-check me-2"></i>
-
-                            Enregistrer
-
-                        </button>
-
-                    </div>
-
-                </form>
+              </div>
 
             </div>
 
+          </div>
+
+
+          <!-- INFORMATIONS PIECE -->
+
+          <div id="pieceSection"
+               class="dynamic-section">
+
+            <div class="card mb-4">
+
+              <div class="card-header">
+
+                <div class="d-flex align-items-center gap-2">
+
+                  <i class="bi bi-gear-wide-connected text-primary"></i>
+
+                  <span>
+                    Informations de la pièce
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="card-body">
+
+                <div class="row g-3">
+
+                  <div class="col-md-6">
+
+                    <label class="form-label">
+                      Référence fabricant
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           name="manufacturer_reference"
+                           placeholder="Ex : BOSCH-0986...">
+
+                  </div>
+
+
+                  <div class="col-md-6">
+
+                    <label class="form-label">
+                      Catégorie de pièce
+                    </label>
+
+                    <select class="form-select"
+                            name="piece_category">
+
+                      <option value="">
+                        Sélectionner
+                      </option>
+
+                      <option value="moteur">
+                        Moteur
+                      </option>
+
+                      <option value="freinage">
+                        Freinage
+                      </option>
+
+                      <option value="suspension">
+                        Suspension
+                      </option>
+
+                      <option value="electricite">
+                        Électricité
+                      </option>
+
+                      <option value="carrosserie">
+                        Carrosserie
+                      </option>
+
+                      <option value="filtration">
+                        Filtration
+                      </option>
+
+                      <option value="eclairage">
+                        Éclairage
+                      </option>
+
+                      <option value="accessoires">
+                        Accessoires
+                      </option>
+
+                    </select>
+
+                  </div>
+
+
+                  <div class="col-12">
+
+                    <label class="form-label">
+                      Compatibilité
+                    </label>
+
+                    <textarea class="form-control"
+                              name="compatibility"
+                              placeholder="Ex : Toyota Corolla 2018-2022, moteur 1.8..."></textarea>
+
+                  </div>
+
+
+                  <div class="col-md-6">
+
+                    <label class="form-label">
+                      Marque de la pièce
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           name="piece_brand"
+                           placeholder="Ex : Bosch">
+
+                  </div>
+
+
+                  <div class="col-md-6">
+
+                    <label class="form-label">
+                      État
+                    </label>
+
+                    <select class="form-select"
+                            name="condition_piece">
+
+                      <option value="neuf">
+                        Neuf
+                      </option>
+
+                      <option value="occasion">
+                        Occasion
+                      </option>
+
+                      <option value="reconditionne">
+                        Reconditionné
+                      </option>
+
+                    </select>
+
+                  </div>
+
+
+                  <div class="col-md-6">
+
+                    <label class="form-label">
+                      Garantie
+                    </label>
+
+                    <select class="form-select"
+                            name="warranty">
+
+                      <option value="sans">
+                        Sans garantie
+                      </option>
+
+                      <option value="3_mois">
+                        3 mois
+                      </option>
+
+                      <option value="6_mois">
+                        6 mois
+                      </option>
+
+                      <option value="12_mois">
+                        12 mois
+                      </option>
+
+                      <option value="24_mois">
+                        24 mois
+                      </option>
+
+                    </select>
+
+                  </div>
+
+
+                  <div class="col-md-6">
+
+                    <label class="form-label">
+                      Unité de vente
+                    </label>
+
+                    <select class="form-select"
+                            name="unit">
+
+                      <option value="piece">
+                        Pièce
+                      </option>
+
+                      <option value="kit">
+                        Kit
+                      </option>
+
+                      <option value="lot">
+                        Lot
+                      </option>
+
+                      <option value="paire">
+                        Paire
+                      </option>
+
+                    </select>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- PHOTOS -->
+
+          <div class="card mb-4">
+
+            <div class="card-header">
+              Photos du produit
+            </div>
+
+            <div class="card-body">
+
+              <label class="upload-zone w-100"
+                     for="productImages">
+
+                <div class="upload-icon mb-2">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                </div>
+
+                <div class="fw-semibold">
+                  Ajouter des photos
+                </div>
+
+                <div class="text-muted small mt-1">
+                  JPG, PNG ou WEBP — 5 Mo maximum par image
+                </div>
+
+              </label>
+
+              <input type="file"
+                     id="productImages"
+                     name="images[]"
+                     class="d-none"
+                     multiple
+                     accept="image/jpeg,image/png,image/webp">
+
+            </div>
+
+          </div>
+
+
         </div>
+
+
+        <!-- ================= COLONNE DROITE ================= -->
+
+        <div class="col-lg-4">
+
+
+          <!-- PRIX ET STOCK -->
+
+          <div class="card mb-4">
+
+            <div class="card-header">
+              Prix et stock
+            </div>
+
+            <div class="card-body">
+
+              <div class="mb-3">
+
+                <label class="form-label">
+                  Prix de vente
+                  <span class="required">*</span>
+                </label>
+
+                <div class="input-group">
+
+                  <input type="number"
+                         class="form-control"
+                         name="selling_price"
+                         id="productPrice"
+                         min="0"
+                         step="1"
+                         placeholder="0"
+                         required>
+
+                  <span class="input-group-text">
+                    FCFA
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="mb-3">
+
+                <label class="form-label">
+                  Prix d'achat
+                </label>
+
+                <div class="input-group">
+
+                  <input type="number"
+                         class="form-control"
+                         name="purchase_price"
+                         min="0"
+                         step="1"
+                         placeholder="0">
+
+                  <span class="input-group-text">
+                    FCFA
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <hr>
+
+
+              <div class="stock-box">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                  <div>
+
+                    <div class="fw-semibold">
+                      Gestion du stock
+                    </div>
+
+                    <div class="text-muted small">
+                      Facultatif pour le moment
+                    </div>
+
+                  </div>
+
+                  <i class="bi bi-box-seam fs-4 text-primary"></i>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                  <label class="form-label">
+                    Quantité initiale
+                  </label>
+
+                  <input type="number"
+                         class="form-control"
+                         name="quantity"
+                         id="productQuantity"
+                         value="0"
+                         min="0">
+
+                </div>
+
+
+                <div>
+
+                  <label class="form-label">
+                    Emplacement
+                  </label>
+
+                  <select class="form-select"
+                          name="location"
+                          id="productLocation">
+
+                    <option value="">
+                      Aucun emplacement spécifié
+                    </option>
+
+                    <option value="boutique_principale">
+                      Boutique principale
+                    </option>
+
+                  </select>
+
+                  <div class="form-text">
+                    Vous pourrez ajouter d'autres magasins ou entrepôts ultérieurement.
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- PUBLICATION -->
+
+          <div class="card mb-4">
+
+            <div class="card-header">
+              Publication
+            </div>
+
+            <div class="card-body">
+
+              <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <div>
+
+                  <div class="fw-semibold">
+                    Statut
+                  </div>
+
+                  <div class="text-muted small">
+                    Visibilité du produit
+                  </div>
+
+                </div>
+
+                <span id="statusBadge"
+                      class="status-badge">
+                  Actif
+                </span>
+
+              </div>
+
+
+              <select class="form-select"
+                      name="status"
+                      id="productStatus">
+
+                <option value="actif">
+                  Actif
+                </option>
+
+                <option value="inactif">
+                  Inactif
+                </option>
+
+                <option value="brouillon">
+                  Brouillon
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+          <!-- RESUME -->
+
+          <div class="card mb-4">
+
+            <div class="card-header">
+              Résumé
+            </div>
+
+            <div class="card-body">
+
+              <div class="summary-item">
+
+                <span class="summary-label">
+                  Type
+                </span>
+
+                <span class="summary-value"
+                      id="summaryType">
+                  Véhicule
+                </span>
+
+              </div>
+
+
+              <div class="summary-item">
+
+                <span class="summary-label">
+                  Produit
+                </span>
+
+                <span class="summary-value"
+                      id="summaryName">
+                  —
+                </span>
+
+              </div>
+
+
+              <div class="summary-item">
+
+                <span class="summary-label">
+                  Référence
+                </span>
+
+                <span class="summary-value"
+                      id="summaryReference">
+                  —
+                </span>
+
+              </div>
+
+
+              <div class="summary-item">
+
+                <span class="summary-label">
+                  Prix
+                </span>
+
+                <span class="summary-value"
+                      id="summaryPrice">
+                  —
+                </span>
+
+              </div>
+
+
+              <div class="summary-item">
+
+                <span class="summary-label">
+                  Stock
+                </span>
+
+                <span class="summary-value"
+                      id="summaryQuantity">
+                  0
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+        </div>
+
+      </div>
 
     </div>
 
 
-    <!-- BOOTSTRAP JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FOOTER FIXE -->
 
+    <div class="modal-footer">
 
-    <!-- MENU MOBILE -->
-    <script>
+      <button type="button"
+              class="btn btn-light border"
+              data-bs-dismiss="modal">
+        Annuler
+      </button>
 
-        (function () {
+      <button type="button"
+              class="btn btn-outline-primary"
+              id="saveDraftBtn">
 
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            const toggle = document.getElementById('sidebarToggle');
-            const close = document.getElementById('sidebarClose');
+        <i class="bi bi-save me-1"></i>
+        Enregistrer brouillon
 
+      </button>
 
-            function openMenu() {
+      <button type="submit"
+              class="btn btn-primary px-4">
 
-                sidebar.classList.add('open');
+        <i class="bi bi-check-lg me-1"></i>
+        Créer le produit
 
-                overlay.classList.add('show');
+      </button>
 
-                document.body.style.overflow = 'hidden';
+    </div>
 
-            }
+  </form>
 
+</div>
+</div>
+</div>
 
-            function closeMenu() {
 
-                sidebar.classList.remove('open');
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-                overlay.classList.remove('show');
+<script>
+document.addEventListener('DOMContentLoaded', function () {
 
-                document.body.style.overflow = '';
+  const $ = id => document.getElementById(id);
 
-            }
 
+  /* ===== ALERTES ===== */
 
-            toggle.addEventListener('click', openMenu);
+  setTimeout(() => {
 
-            close.addEventListener('click', closeMenu);
+    ['success-alert','error-alert'].forEach(i => {
+      $(i)?.remove();
+    });
 
-            overlay.addEventListener('click', closeMenu);
+  }, 3000);
 
 
-            document.addEventListener('keydown', function (e) {
+  /* ===== MENU MOBILE ===== */
 
-                if (e.key === 'Escape') {
+  const sidebar = $('sidebar');
+  const overlay = $('sidebarOverlay');
 
-                    closeMenu();
+  function openMenu(){
 
-                }
+    if(!sidebar || !overlay) return;
 
-            });
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
 
+    document.body.style.overflow='hidden';
+  }
 
-            window.addEventListener('resize', function () {
+  function closeMenu(){
 
-                if (window.innerWidth >= 992) {
+    if(!sidebar || !overlay) return;
 
-                    closeMenu();
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
 
-                }
+    document.body.style.overflow='';
+  }
 
-            });
+  $('sidebarToggle')?.addEventListener('click', openMenu);
 
-        })();
+  $('sidebarClose')?.addEventListener('click', closeMenu);
 
-    </script>
+  overlay?.addEventListener('click', closeMenu);
 
+  document.addEventListener('keydown', e => {
 
-    <!-- RECHERCHE ET FILTRES PRODUITS -->
-    <script>
+    if(e.key==='Escape'){
+      closeMenu();
+    }
 
-        document.addEventListener('DOMContentLoaded', function () {
+  });
 
-            const searchInput = document.getElementById('searchProduct');
+  window.addEventListener('resize', () => {
 
-            const filterType = document.getElementById('filterType');
+    if(window.innerWidth>=992){
+      closeMenu();
+    }
 
-            const filterStatus = document.getElementById('filterStatus');
+  });
 
-            const rows = document.querySelectorAll('#productsTable tbody tr');
 
+  /* ===== ELEMENTS FORMULAIRE ===== */
 
-            function filterProducts() {
+  const modal = $('addProductModal');
+  const form = $('productForm');
 
-                const search = searchInput.value.toLowerCase();
+  const typeVehicle = $('typeVehicle');
+  const typePiece = $('typePiece');
 
-                const type = filterType.value.toLowerCase();
+  const vehicleCard = $('vehicleTypeCard');
+  const pieceCard = $('pieceTypeCard');
 
-                const status = filterStatus.value.toLowerCase();
+  const vehicleSection = $('vehicleSection');
+  const pieceSection = $('pieceSection');
 
+  const summaryType = $('summaryType');
+  const summaryName = $('summaryName');
+  const summaryReference = $('summaryReference');
+  const summaryPrice = $('summaryPrice');
+  const summaryQuantity = $('summaryQuantity');
 
-                rows.forEach(function (row) {
+  const productName = $('productName');
+  const productReference = $('productReference');
+  const productPrice = $('productPrice');
+  const productQuantity = $('productQuantity');
 
-                    const text = row.textContent.toLowerCase();
+  const productStatus = $('productStatus');
+  const statusBadge = $('statusBadge');
 
 
-                    const matchesSearch = text.includes(search);
+  /* ===== TYPE PRODUIT ===== */
 
+  function toggleSection(section, show){
 
-                    const matchesType =
-                        !type ||
-                        text.includes(
-                            type === 'piece'
-                                ? 'pièce'
-                                : 'véhicule'
-                        );
+    section.classList.toggle('show', show);
 
+    section.querySelectorAll('input,select,textarea').forEach(el => {
+      el.disabled = !show;
+    });
 
-                    const matchesStatus =
-                        !status ||
-                        text.includes(
-                            status === 'actif'
-                                ? 'actif'
-                                : 'inactif'
-                        );
+  }
 
 
-                    row.style.display =
-                        matchesSearch &&
-                        matchesType &&
-                        matchesStatus
-                            ? ''
-                            : 'none';
+  function changeProductType(type){
 
-                });
+    const isVehicle = type === 'vehicule';
 
-            }
+    typeVehicle.checked = isVehicle;
+    typePiece.checked = !isVehicle;
 
+    vehicleCard.classList.toggle('active', isVehicle);
+    pieceCard.classList.toggle('active', !isVehicle);
 
-            searchInput.addEventListener(
-                'input',
-                filterProducts
-            );
+    toggleSection(vehicleSection, isVehicle);
+    toggleSection(pieceSection, !isVehicle);
 
-            filterType.addEventListener(
-                'change',
-                filterProducts
-            );
+    summaryType.textContent =
+      isVehicle ? 'Véhicule' : 'Pièce détachée';
+  }
 
-            filterStatus.addEventListener(
-                'change',
-                filterProducts
-            );
 
-        });
+  vehicleCard.addEventListener('click', e => {
 
-    </script>
+    e.preventDefault();
+
+    changeProductType('vehicule');
+
+  });
+
+
+  pieceCard.addEventListener('click', e => {
+
+    e.preventDefault();
+
+    changeProductType('piece');
+
+  });
+
+
+  typeVehicle.addEventListener('change', function(){
+
+    if(this.checked){
+      changeProductType('vehicule');
+    }
+
+  });
+
+
+  typePiece.addEventListener('change', function(){
+
+    if(this.checked){
+      changeProductType('piece');
+    }
+
+  });
+
+
+  /* ===== RESUME ===== */
+
+  productName.addEventListener('input', function(){
+
+    summaryName.textContent =
+      this.value.trim() || '—';
+
+  });
+
+
+  productReference.addEventListener('input', function(){
+
+    summaryReference.textContent =
+      this.value.trim() || '—';
+
+  });
+
+
+  productPrice.addEventListener('input', function(){
+
+    summaryPrice.textContent =
+      this.value === ''
+        ? '—'
+        : new Intl.NumberFormat('fr-FR').format(Number(this.value)) + ' FCFA';
+
+  });
+
+
+  productQuantity.addEventListener('input', function(){
+
+    summaryQuantity.textContent =
+      this.value !== ''
+        ? this.value
+        : '0';
+
+  });
+
+
+  /* ===== STATUT ===== */
+
+  function updateStatusBadge(){
+
+    const styles = {
+
+      actif: [
+        'Actif',
+        '#e9f7ef',
+        '#198754'
+      ],
+
+      inactif: [
+        'Inactif',
+        '#fcebea',
+        '#dc3545'
+      ],
+
+      brouillon: [
+        'Brouillon',
+        '#fff3cd',
+        '#997404'
+      ]
+
+    };
+
+    const s =
+      styles[productStatus.value] ||
+      styles.actif;
+
+    statusBadge.textContent = s[0];
+
+    statusBadge.style.backgroundColor = s[1];
+
+    statusBadge.style.color = s[2];
+
+  }
+
+
+  productStatus.addEventListener(
+    'change',
+    updateStatusBadge
+  );
+
+
+  /* ===== BROUILLON ===== */
+
+  $('saveDraftBtn').addEventListener(
+    'click',
+    function(){
+
+      productStatus.value = 'brouillon';
+
+      updateStatusBadge();
+
+      if(form.reportValidity()){
+        form.submit();
+      }
+
+    }
+  );
+
+
+  /* ===== PHOTOS ===== */
+
+  $('productImages').addEventListener(
+    'change',
+    function(){
+
+      const title =
+        document.querySelector(
+          'label[for="productImages"] .fw-semibold'
+        );
+
+      const n = this.files.length;
+
+      if(title){
+
+        title.textContent =
+          n === 0
+            ? 'Ajouter des photos'
+            : n === 1
+              ? '1 photo sélectionnée'
+              : n + ' photos sélectionnées';
+
+      }
+
+    }
+  );
+
+
+  /* ===== MODAL ===== */
+
+  const scrollTop = () => {
+
+    const b =
+      modal.querySelector('.modal-body');
+
+    if(b){
+      b.scrollTop = 0;
+    }
+
+  };
+
+
+  modal.addEventListener(
+    'shown.bs.modal',
+    scrollTop
+  );
+
+
+  modal.addEventListener(
+    'hidden.bs.modal',
+    function(){
+
+      form.reset();
+
+      changeProductType('vehicule');
+
+      summaryName.textContent = '—';
+      summaryReference.textContent = '—';
+      summaryPrice.textContent = '—';
+      summaryQuantity.textContent = '0';
+
+      $('productImages').dispatchEvent(
+        new Event('change')
+      );
+
+      updateStatusBadge();
+
+      scrollTop();
+
+    }
+  );
+
+
+  /* ===== RECHERCHE + FILTRES ===== */
+
+  const searchInput = $('searchProduct');
+  const filterType = $('filterType');
+  const filterStatus = $('filterStatus');
+  const table = $('productsTable');
+
+
+  function filterProducts(){
+
+    const search =
+      searchInput.value
+        .toLowerCase()
+        .trim();
+
+    const type =
+      filterType.value
+        .toLowerCase();
+
+    const status =
+      filterStatus.value
+        .toLowerCase();
+
+
+    table.querySelectorAll(
+      'tbody tr[data-type]'
+    ).forEach(row => {
+
+      const ok =
+        row.textContent
+          .toLowerCase()
+          .includes(search)
+
+        &&
+
+        (
+          !type ||
+          String(row.dataset.type || '')
+            .toLowerCase() === type
+        )
+
+        &&
+
+        (
+          !status ||
+          String(row.dataset.status || '')
+            .toLowerCase() === status
+        );
+
+
+      row.style.display =
+        ok ? '' : 'none';
+
+    });
+
+  }
+
+
+  searchInput.addEventListener(
+    'input',
+    filterProducts
+  );
+
+  filterType.addEventListener(
+    'change',
+    filterProducts
+  );
+
+  filterStatus.addEventListener(
+    'change',
+    filterProducts
+  );
+
+
+  /* ===== INITIALISATION ===== */
+
+  changeProductType('vehicule');
+
+  updateStatusBadge();
+
+});
+</script>
 
 </body>
 </html>
