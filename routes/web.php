@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\StockEntryController;
 
 
 // =============================================================
@@ -94,7 +95,22 @@ Route::middleware('auth')->group(function () {
         'store'
     ])->name('stock.movements.store');
 
+    // =========================================================
+    // ENTREES DE STOCK
+    // =========================================================
 
+    Route::get('/stock/entrees', [StockEntryController::class, 'index'])
+        ->name('stock.entries.index');
+
+    Route::get('/stock/entrees/nouvelle', [StockEntryController::class, 'create'])
+        ->name('stock.entries.create');
+
+    Route::post('/stock/entrees', [StockEntryController::class, 'store'])
+        ->name('stock.entries.store');
+
+    Route::get('/stock/entrees/{purchase}', [StockEntryController::class, 'show'])
+        ->name('stock.entries.show');
+        
     // =========================================================
     // DECONNEXION
     // =========================================================

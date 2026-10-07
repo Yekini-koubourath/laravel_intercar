@@ -46,7 +46,7 @@ class StockController extends Controller
     {
         $request->validate([
             'product_id' => ['required', 'exists:products,id'],
-            'type' => ['required', 'in:entree,sortie'],
+            'type' => ['required', 'in:sortie'],
             'quantity' => ['required', 'integer', 'min:1'],
             'motif' => ['nullable', 'string', 'max:255'],
             'observation' => ['nullable', 'string'],
