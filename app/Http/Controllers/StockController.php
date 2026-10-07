@@ -11,16 +11,11 @@ use Illuminate\Support\Facades\DB;
 class StockController extends Controller
 {
     /**
-     * Afficher le stock.
+     * Page Stock : état du stock.
      */
     public function index()
     {
         $products = Product::orderBy('name')->get();
-
-        $movements = StockMovement::with(['product', 'user'])
-            ->latest()
-            ->take(20)
-            ->get();
 
         $totalProducts = $products->count();
 
@@ -32,7 +27,6 @@ class StockController extends Controller
 
         return view('stock.index', compact(
             'products',
-            'movements',
             'totalProducts',
             'totalStock',
             'stockFaible'
@@ -40,7 +34,38 @@ class StockController extends Controller
     }
 
     /**
-     * Enregistrer une entrée ou une sortie de stock.
+     * Page Mouvements : historique complet avec filtres.
+     */
+    public function movements(Request $request)
+    {
+        $movements = StockMovement::with(['product', 'user', 'purchase'])
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $s = trim($request->q);
+                $query->where(function ($w) use ($s) {
+                    $w->where('motif', 'like', "%{$s}%")
+                      ->orWhereHas('product', fn ($p) => $p
+                          ->where('name', 'like', "%{$s}%")
+                          ->orWhere('reference', 'like', "%{$s}%"));
+                });
+            })
+            ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
+            ->when($request->filled('from'), fn ($q) => $q->whereDate('created_at', '>=', $request->from))
+            ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->to))
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('stock.movements', [
+            'movements'     => $movements,
+            'countAll'      => StockMovement::count(),
+            'totalEntrees'  => StockMovement::where('type', 'entree')->sum('quantity'),
+            'totalSorties'  => StockMovement::where('type', 'sortie')->sum('quantity'),
+        ]);
+    }
+
+    /**
+     * Enregistrer une SORTIE de stock.
+     * (Les entrées passent par StockEntryController.)
      */
     public function store(Request $request)
     {
@@ -59,18 +84,11 @@ class StockController extends Controller
 
             $stockAvant = $product->quantity;
 
-            if ($request->type === 'entree') {
-
-                $stockApres = $stockAvant + $request->quantity;
-
-            } else {
-
-                if ($request->quantity > $stockAvant) {
-                    abort(422, 'Stock insuffisant pour effectuer cette sortie.');
-                }
-
-                $stockApres = $stockAvant - $request->quantity;
+            if ($request->quantity > $stockAvant) {
+                abort(422, 'Stock insuffisant pour effectuer cette sortie.');
             }
+
+            $stockApres = $stockAvant - $request->quantity;
 
             $product->update([
                 'quantity' => $stockApres,
@@ -89,7 +107,7 @@ class StockController extends Controller
         });
 
         return redirect()
-            ->route('stock.index')
-            ->with('success', 'Mouvement de stock enregistré avec succès.');
+            ->route('stock.movements.index')
+            ->with('success', 'Sortie de stock enregistrée avec succès.');
     }
 }

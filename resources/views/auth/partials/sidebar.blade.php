@@ -217,7 +217,7 @@
                     </a>
 
 
-                    <a href="#"
+                    <a href="{{ route('stock.movements.index') }}"
                        class="nav-link sidebar-submenu-link">
 
                         <i class="fa-solid fa-arrow-right-arrow-left"></i>

@@ -26,4 +26,12 @@ class StockMovement extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * L'achat (entrée de stock) qui a créé ce mouvement, s'il existe.
+     */
+    public function purchase()
+    {
+        return $this->hasOne(Purchase::class, 'stock_movement_id');
+    }
 }

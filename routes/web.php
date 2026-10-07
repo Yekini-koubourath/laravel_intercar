@@ -89,6 +89,10 @@ Route::middleware('auth')->group(function () {
         StockController::class,
         'index'
     ])->name('stock.index');
+        Route::get('/stock/mouvements', [
+        StockController::class,
+        'movements'
+    ])->name('stock.movements.index');
 
     Route::post('/stock/mouvements', [
         StockController::class,
@@ -110,7 +114,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/stock/entrees/{purchase}', [StockEntryController::class, 'show'])
         ->name('stock.entries.show');
-        
+
     // =========================================================
     // DECONNEXION
     // =========================================================
