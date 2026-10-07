@@ -137,12 +137,6 @@ Route::post('/ventes', [
     'store'
 ])->name('sales.store');
 
-Route::get('/ventes/{sale}', [
-    \App\Http\Controllers\SaleController::class,
-    'show'
-])->name('sales.show');
-
-
 // =========================================================
 // RETOURS
 // =========================================================
@@ -166,6 +160,11 @@ Route::get('/ventes/retours/{return}', [
     \App\Http\Controllers\SaleReturnController::class,
     'show'
 ])->name('sales.returns.show');
+
+Route::get('/ventes/{sale}', [
+    \App\Http\Controllers\SaleController::class,
+    'show'
+])->name('sales.show');
 
 
     // =========================================================
