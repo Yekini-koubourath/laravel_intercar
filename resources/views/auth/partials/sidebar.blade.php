@@ -2,10 +2,13 @@
 
     <div>
 
-        <!-- Logo Header -->
+        <!-- =========================================================
+             LOGO
+        ========================================================== -->
+
         <div class="sidebar-brand text-center">
 
-            <!-- Bouton fermer (mobile / tablette) -->
+            <!-- Bouton fermer sur mobile / tablette -->
             <button type="button"
                     class="btn btn-sm text-white-50 d-lg-none position-absolute top-0 end-0 m-2"
                     id="sidebarClose"
@@ -14,6 +17,7 @@
                 <i class="fa-solid fa-xmark fs-5"></i>
 
             </button>
+
 
             <img src="{{ asset('images/logo-intercar.png') }}"
                  alt="INTERCAR"
@@ -24,26 +28,36 @@
         </div>
 
 
-        <!-- Menu -->
+        <!-- =========================================================
+             MENU
+        ========================================================== -->
+
         <nav class="nav flex-column mt-3">
 
-            <!-- ================================= -->
-            <!-- TABLEAU DE BORD -->
-            <!-- ================================= -->
+
+            <!-- =====================================================
+                 TABLEAU DE BORD
+            ====================================================== -->
 
             <a href="{{ route('dashboard') }}"
-               class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+               class="nav-link sidebar-main-link
+               {{ request()->routeIs('dashboard') ? 'active' : '' }}">
 
-                <i class="fa-solid fa-border-all"></i>
+                <span class="sidebar-menu-content">
 
-                <span>Tableau de bord</span>
+                    <i class="fa-solid fa-border-all"></i>
+
+                    <span>Tableau de bord</span>
+
+                </span>
 
             </a>
 
 
-            <!-- ================================= -->
-            <!-- CATALOGUE -->
-            <!-- ================================= -->
+
+            <!-- =====================================================
+                 CATALOGUE
+            ====================================================== -->
 
             <div class="sidebar-menu-group">
 
@@ -67,6 +81,7 @@
                 <div class="sidebar-submenu
                     {{ request()->routeIs('products.*') ? 'open' : '' }}"
                      id="catalogue">
+
 
                     <!-- Produits -->
 
@@ -109,9 +124,10 @@
             </div>
 
 
-            <!-- ================================= -->
-            <!-- APPROVISIONNEMENT -->
-            <!-- ================================= -->
+
+            <!-- =====================================================
+                 APPROVISIONNEMENT
+            ====================================================== -->
 
             <div class="sidebar-menu-group">
 
@@ -135,6 +151,9 @@
                 <div class="sidebar-submenu"
                      id="approvisionnement">
 
+
+                    <!-- Fournisseurs -->
+
                     <a href="#"
                        class="nav-link sidebar-submenu-link">
 
@@ -144,6 +163,8 @@
 
                     </a>
 
+
+                    <!-- Achats -->
 
                     <a href="#"
                        class="nav-link sidebar-submenu-link">
@@ -155,6 +176,8 @@
                     </a>
 
 
+                    <!-- Frais annexes -->
+
                     <a href="#"
                        class="nav-link sidebar-submenu-link">
 
@@ -164,6 +187,8 @@
 
                     </a>
 
+
+                    <!-- Taux de change -->
 
                     <a href="#"
                        class="nav-link sidebar-submenu-link">
@@ -179,9 +204,10 @@
             </div>
 
 
-            <!-- ================================= -->
-            <!-- STOCK -->
-            <!-- ================================= -->
+
+            <!-- =====================================================
+                 STOCK
+            ====================================================== -->
 
             <div class="sidebar-menu-group">
 
@@ -206,9 +232,12 @@
                     {{ request()->routeIs('stock.*') ? 'open' : '' }}"
                      id="stock">
 
+
+                    <!-- Stock actuel -->
+
                     <a href="{{ route('stock.index') }}"
                        class="nav-link sidebar-submenu-link
-                       {{ request()->routeIs('stock.*') ? 'active' : '' }}">
+                       {{ request()->routeIs('stock.index') ? 'active' : '' }}">
 
                         <i class="fa-solid fa-cubes"></i>
 
@@ -217,8 +246,11 @@
                     </a>
 
 
+                    <!-- Mouvements -->
+
                     <a href="{{ route('stock.movements.index') }}"
-                       class="nav-link sidebar-submenu-link">
+                       class="nav-link sidebar-submenu-link
+                       {{ request()->routeIs('stock.movements.*') ? 'active' : '' }}">
 
                         <i class="fa-solid fa-arrow-right-arrow-left"></i>
 
@@ -226,6 +258,8 @@
 
                     </a>
 
+
+                    <!-- Alertes stock faible -->
 
                     <a href="#"
                        class="nav-link sidebar-submenu-link">
@@ -241,9 +275,10 @@
             </div>
 
 
-            <!-- ================================= -->
-            <!-- VENTES -->
-            <!-- ================================= -->
+
+            <!-- =====================================================
+                 VENTES
+            ====================================================== -->
 
             <div class="sidebar-menu-group">
 
@@ -264,56 +299,70 @@
                 </button>
 
 
-                <div class="sidebar-submenu"
-                     id="ventes">
-
-                    <a href="#"
-                       class="nav-link sidebar-submenu-link">
-
-                        <i class="fa-solid fa-plus"></i>
-
-                        <span>Nouvelle vente</span>
-
-                    </a>
+                <div class="sidebar-submenu
+     {{ request()->routeIs('sales.*') ? 'open' : '' }}"
+     id="ventes">
 
 
-                    <a href="#"
-                       class="nav-link sidebar-submenu-link">
+                    <!-- Nouvelle vente -->
 
-                        <i class="fa-solid fa-list"></i>
+                   <a href="{{ route('sales.create') }}"
+   class="nav-link sidebar-submenu-link
+   {{ request()->routeIs('sales.create') ? 'active' : '' }}">
 
-                        <span>Liste des ventes</span>
+    <i class="fa-solid fa-plus"></i>
 
-                    </a>
+    <span>Nouvelle vente</span>
 
-
-                    <a href="#"
-                       class="nav-link sidebar-submenu-link">
-
-                        <i class="fa-solid fa-file-lines"></i>
-
-                        <span>Détail d'une vente</span>
-
-                    </a>
+</a>
 
 
-                    <a href="#"
-                       class="nav-link sidebar-submenu-link">
+                    <!-- Liste des ventes -->
 
-                        <i class="fa-solid fa-rotate-left"></i>
+                  <a href="{{ route('sales.index') }}"
+   class="nav-link sidebar-submenu-link
+   {{ request()->routeIs('sales.index', 'sales.show') ? 'active' : '' }}">
 
-                        <span>Retours</span>
+    <i class="fa-solid fa-list"></i>
 
-                    </a>
+    <span>Liste des ventes</span>
+
+</a>
+
+
+                    <!-- Détail d'une vente -->
+
+                   <a href="{{ route('sales.index') }}"
+   class="nav-link sidebar-submenu-link">
+
+    <i class="fa-solid fa-file-lines"></i>
+
+    <span>Détail d'une vente</span>
+
+</a>
+
+
+                    <!-- Retours -->
+
+                   <a href="{{ route('sales.returns.index') }}"
+   class="nav-link sidebar-submenu-link
+   {{ request()->routeIs('sales.returns.*') ? 'active' : '' }}">
+
+    <i class="fa-solid fa-rotate-left"></i>
+
+    <span>Retours</span>
+
+</a>
 
                 </div>
 
             </div>
 
 
-            <!-- ================================= -->
-            <!-- TARIFICATION -->
-            <!-- ================================= -->
+
+            <!-- =====================================================
+                 TARIFICATION
+            ====================================================== -->
 
             <div class="sidebar-menu-group">
 
@@ -337,6 +386,9 @@
                 <div class="sidebar-submenu"
                      id="tarification">
 
+
+                    <!-- Prix de revient -->
+
                     <a href="#"
                        class="nav-link sidebar-submenu-link">
 
@@ -347,6 +399,8 @@
                     </a>
 
 
+                    <!-- Prix de vente -->
+
                     <a href="#"
                        class="nav-link sidebar-submenu-link">
 
@@ -356,6 +410,8 @@
 
                     </a>
 
+
+                    <!-- Marges -->
 
                     <a href="#"
                        class="nav-link sidebar-submenu-link">
@@ -375,9 +431,10 @@
     </div>
 
 
-    <!-- ================================= -->
-    <!-- SIDEBAR FOOTER -->
-    <!-- ================================= -->
+
+    <!-- =============================================================
+         FOOTER SIDEBAR
+    ============================================================== -->
 
     <div class="text-center text-white-50 pt-3 border-top border-white border-opacity-10 mt-3">
 
@@ -409,37 +466,36 @@
 </aside>
 
 
+
 <style>
 
-/* ========================================= */
-/* GROUPES DU MENU */
-/* ========================================= */
+/* =========================================================
+   GROUPES DU MENU
+========================================================= */
 
 .sidebar-menu-group {
     width: 100%;
 }
 
 
-/* ========================================= */
-/* GRAND MENU */
-/* ========================================= */
+/* =========================================================
+   LIENS PRINCIPAUX
+   Tableau de bord
+========================================================= */
 
-.sidebar-menu-toggle {
+.sidebar-main-link {
     width: 100%;
-    border: 0;
-    background: transparent;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    color: #ffffff !important;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
 }
 
 
-/*
- * Même espace entre l'icône et le texte
- * que pour Tableau de bord.
- */
+/* =========================================================
+   CONTENU DES MENUS
+========================================================= */
 
 .sidebar-menu-content {
     display: flex;
@@ -448,21 +504,12 @@
 }
 
 
-/*
- * Toutes les icônes des grands menus
- * ont exactement la même largeur.
- *
- * Cela aligne les textes :
- *
- * Tableau de bord
- * Catalogue
- * Approvisionnement
- * Stock
- * Ventes
- * Tarification
- */
+/* =========================================================
+   LARGEUR DES ICONES
+========================================================= */
 
-.sidebar-menu-content > i:first-child {
+.sidebar-menu-content > i:first-child,
+.sidebar-main-link > i:first-child {
     width: 24px;
     min-width: 24px;
     text-align: center;
@@ -470,133 +517,230 @@
 }
 
 
-/* ========================================= */
-/* CHEVRON */
-/* ========================================= */
+/* =========================================================
+   TABLEAU DE BORD ACTIF
+========================================================= */
 
-.sidebar-chevron {
-    font-size: 0.7rem;
-    margin-left: auto;
-    transition: transform 0.25s ease;
-    flex-shrink: 0;
+.sidebar-main-link.active {
+    background-color: #ff9800 !important;
+    color: #ffffff !important;
 }
 
 
-/*
- * Chevron vers le haut lorsque
- * le sous-menu est ouvert.
- */
+/* =========================================================
+   GRAND MENU
+========================================================= */
+
+.sidebar-menu-toggle {
+
+    width: 100%;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #ffffff !important;
+
+    text-align: left;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    cursor: pointer;
+
+    border-radius: 8px;
+
+    margin-bottom: 4px;
+
+    padding: 0.5rem 1rem;
+
+    transition: background-color 0.2s ease;
+
+}
+
+
+/* Aucun orange lorsque le grand menu est ouvert */
+
+.sidebar-menu-toggle.open {
+    background-color: transparent !important;
+    color: #ffffff !important;
+}
+
+
+/* Hover des grands menus */
+
+.sidebar-menu-toggle:hover {
+    background-color: rgba(255, 152, 0, 0.12);
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   CHEVRON
+========================================================= */
+
+.sidebar-chevron {
+
+    font-size: 0.7rem;
+
+    margin-left: auto;
+
+    transition: transform 0.25s ease;
+
+    flex-shrink: 0;
+
+}
+
+
+/* Chevron vers le haut */
 
 .sidebar-menu-toggle.open .sidebar-chevron {
     transform: rotate(180deg);
 }
 
 
-/* ========================================= */
-/* SOUS-MENUS */
-/* ========================================= */
+/* =========================================================
+   SOUS-MENUS
+========================================================= */
 
 .sidebar-submenu {
+
     display: none;
+
     overflow: hidden;
+
     padding-left: 0.75rem;
+
 }
 
-
-/*
- * Le sous-menu apparaît uniquement
- * lorsqu'on clique sur son grand menu.
- */
 
 .sidebar-submenu.open {
     display: block;
 }
 
 
-/* ========================================= */
-/* LIENS DES SOUS-MENUS */
-/* ========================================= */
+/* =========================================================
+   LIENS DES SOUS-MENUS
+========================================================= */
 
 .sidebar-submenu-link {
+
+    width: 100%;
+
     padding-left: 2.5rem !important;
+
+    padding-top: 0.5rem;
+
+    padding-bottom: 0.5rem;
+
     font-size: 0.9rem;
+
+    color: #ffffff !important;
+
+    border-radius: 8px;
+
+    margin-bottom: 3px;
+
+    transition: background-color 0.2s ease;
+
 }
 
 
-/* Icônes des sous-menus */
+/* =========================================================
+   ICONES DES SOUS-MENUS
+========================================================= */
 
 .sidebar-submenu-link i {
+
     font-size: 0.8rem;
+
+    margin-right: 8px;
+
 }
 
 
-/* ========================================= */
-/* SOUS-MENU ACTIF */
-/* ========================================= */
-
-/*
- * SEUL le sous-menu actif devient orange.
- *
- * Le grand menu Catalogue, Stock, etc.
- * reste normal.
- */
+/* =========================================================
+   SOUS-MENU ACTIF
+   MÊME COULEUR QUE TABLEAU DE BORD
+========================================================= */
 
 .sidebar-submenu-link.active {
+
     background-color: #ff9800 !important;
+
     color: #ffffff !important;
+
 }
 
 
-/*
- * Icône du sous-menu actif en blanc.
- */
+/* Icone du sous-menu actif */
 
 .sidebar-submenu-link.active i {
+
     color: #ffffff !important;
+
 }
 
 
-/* ========================================= */
-/* HOVER DES GRANDS MENUS */
-/* ========================================= */
-
-/*
- * Aucun fond orange permanent sur
- * Catalogue / Stock / etc.
- */
-
-.sidebar-menu-toggle:hover {
-    text-decoration: none;
-}
-
-
-/* ========================================= */
-/* HOVER DES SOUS-MENUS */
-/* ========================================= */
+/* =========================================================
+   HOVER SOUS-MENU
+========================================================= */
 
 .sidebar-submenu-link:hover {
+
+    background-color: rgba(255, 152, 0, 0.12);
+
+    color: #ffffff !important;
+
     text-decoration: none;
+
+}
+
+
+/* =========================================================
+   LE LIEN ACTIF DOIT RESTER ORANGE MÊME AU HOVER
+========================================================= */
+
+.sidebar-submenu-link.active:hover {
+
+    background-color: #ff9800 !important;
+
+    color: #ffffff !important;
+
 }
 
 </style>
+
 
 
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    const menuButtons = document.querySelectorAll('.sidebar-menu-toggle');
+    /* =========================================================
+       RÉCUPÉRER TOUS LES GRANDS MENUS
+    ========================================================== */
+
+    const menuButtons = document.querySelectorAll(
+        '.sidebar-menu-toggle'
+    );
 
 
-    /*
-     * Ouvrir automatiquement le bon grand menu
-     * lorsqu'une page de ce menu est active.
-     */
+    /* =========================================================
+       OUVRIR AUTOMATIQUEMENT LE MENU ACTIF
+    ========================================================== */
 
-    document.querySelectorAll('.sidebar-submenu.open').forEach(function (menu) {
+    document.querySelectorAll(
+        '.sidebar-submenu.open'
+    ).forEach(function (menu) {
 
         const button = document.querySelector(
-            '.sidebar-menu-toggle[data-menu="' + menu.id + '"]'
+            '.sidebar-menu-toggle[data-menu="' +
+            menu.id +
+            '"]'
         );
 
         if (button) {
@@ -608,52 +752,61 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    /*
-     * Gestion des clics sur les grands menus.
-     */
+    /* =========================================================
+       CLIQUE SUR UN GRAND MENU
+    ========================================================== */
 
     menuButtons.forEach(function (button) {
 
         button.addEventListener('click', function () {
 
-            const menuId = this.getAttribute('data-menu');
+            const menuId = this.getAttribute(
+                'data-menu'
+            );
 
-            const currentMenu = document.getElementById(menuId);
+            const currentMenu = document.getElementById(
+                menuId
+            );
+
+
+            if (!currentMenu) {
+                return;
+            }
+
 
             const isCurrentlyOpen =
                 currentMenu.classList.contains('open');
 
 
-            /*
-             * Fermer tous les sous-menus.
-             */
+            /* =================================================
+               FERMER TOUS LES SOUS-MENUS
+            ================================================== */
 
-            document.querySelectorAll('.sidebar-submenu').forEach(function (menu) {
+            document.querySelectorAll(
+                '.sidebar-submenu'
+            ).forEach(function (menu) {
 
                 menu.classList.remove('open');
 
             });
 
 
-            /*
-             * Remettre tous les chevrons
-             * dans leur position normale.
-             */
+            /* =================================================
+               REMETTRE TOUS LES CHEVRONS À L'ÉTAT NORMAL
+            ================================================== */
 
-            document.querySelectorAll('.sidebar-menu-toggle').forEach(function (menuButton) {
+            document.querySelectorAll(
+                '.sidebar-menu-toggle'
+            ).forEach(function (menuButton) {
 
                 menuButton.classList.remove('open');
 
             });
 
 
-            /*
-             * Si le menu cliqué était fermé,
-             * on l'ouvre.
-             *
-             * S'il était déjà ouvert,
-             * il reste fermé.
-             */
+            /* =================================================
+               OUVRIR LE MENU CLIQUÉ
+            ================================================== */
 
             if (!isCurrentlyOpen) {
 

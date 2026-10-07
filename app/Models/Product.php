@@ -65,4 +65,12 @@ class Product extends Model
         return $this->hasMany(ProductImage::class)
             ->orderBy('sort_order');
     }
+
+    /**
+ * Lignes de ventes liées à ce produit.
+ */
+public function saleItems()
+{
+    return $this->hasMany(SaleItem::class);
+}
 }

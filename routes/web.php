@@ -115,6 +115,57 @@ Route::middleware('auth')->group(function () {
     Route::get('/stock/entrees/{purchase}', [StockEntryController::class, 'show'])
         ->name('stock.entries.show');
 
+
+        // =========================================================
+// VENTES
+// =========================================================
+
+Route::get('/ventes', [
+    \App\Http\Controllers\SaleController::class,
+    'index'
+])->name('sales.index');
+
+Route::get('/ventes/nouvelle', [
+    \App\Http\Controllers\SaleController::class,
+    'create'
+])->name('sales.create');
+
+Route::post('/ventes', [
+    \App\Http\Controllers\SaleController::class,
+    'store'
+])->name('sales.store');
+
+Route::get('/ventes/{sale}', [
+    \App\Http\Controllers\SaleController::class,
+    'show'
+])->name('sales.show');
+
+
+// =========================================================
+// RETOURS
+// =========================================================
+
+Route::get('/ventes/retours', [
+    \App\Http\Controllers\SaleReturnController::class,
+    'index'
+])->name('sales.returns.index');
+
+Route::get('/ventes/retours/nouveau', [
+    \App\Http\Controllers\SaleReturnController::class,
+    'create'
+])->name('sales.returns.create');
+
+Route::post('/ventes/retours', [
+    \App\Http\Controllers\SaleReturnController::class,
+    'store'
+])->name('sales.returns.store');
+
+Route::get('/ventes/retours/{return}', [
+    \App\Http\Controllers\SaleReturnController::class,
+    'show'
+])->name('sales.returns.show');
+
+
     // =========================================================
     // DECONNEXION
     // =========================================================
