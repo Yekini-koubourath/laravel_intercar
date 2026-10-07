@@ -12,7 +12,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::orderBy('created_at', 'desc')->get();
+        $products = Product::with('images')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('products.index', compact('products'));
     }
@@ -23,6 +25,10 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // =========================================================
+        // VALIDATION
+        // =========================================================
+
         $validated = $request->validate([
 
             // =====================================================
@@ -33,35 +39,35 @@ class ProductController extends Controller
                 'required',
                 'string',
                 'max:255',
-                'unique:products,reference'
+                'unique:products,reference',
             ],
 
             'name' => [
                 'required',
                 'string',
-                'max:255'
+                'max:255',
             ],
 
             'brand' => [
                 'required',
                 'string',
-                'max:255'
+                'max:255',
             ],
 
             'category' => [
                 'required',
                 'string',
-                'max:255'
+                'max:255',
             ],
 
             'description' => [
                 'nullable',
-                'string'
+                'string',
             ],
 
             'type' => [
                 'required',
-                'in:vehicule,piece'
+                'in:vehicule,piece',
             ],
 
 
@@ -72,13 +78,13 @@ class ProductController extends Controller
             'selling_price' => [
                 'required',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
 
             'purchase_price' => [
                 'nullable',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
 
 
@@ -89,19 +95,19 @@ class ProductController extends Controller
             'quantity' => [
                 'required',
                 'integer',
-                'min:0'
+                'min:0',
             ],
 
             'stock_minimum' => [
                 'required',
                 'integer',
-                'min:0'
+                'min:0',
             ],
 
             'location' => [
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
             ],
 
 
@@ -111,7 +117,7 @@ class ProductController extends Controller
 
             'status' => [
                 'required',
-                'in:actif,inactif,brouillon'
+                'in:actif,inactif,brouillon',
             ],
 
 
@@ -122,53 +128,53 @@ class ProductController extends Controller
             'vehicle_model' => [
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
             ],
 
             'vehicle_year' => [
                 'nullable',
                 'integer',
                 'min:1980',
-                'max:' . date('Y')
+                'max:' . date('Y'),
             ],
 
             'fuel' => [
                 'nullable',
-                'in:essence,diesel,hybride,electrique'
+                'in:essence,diesel,hybride,electrique',
             ],
 
             'transmission' => [
                 'nullable',
-                'in:manuelle,automatique,cvt'
+                'in:manuelle,automatique,cvt',
             ],
 
             'mileage' => [
                 'nullable',
                 'integer',
-                'min:0'
+                'min:0',
             ],
 
             'doors' => [
                 'nullable',
                 'integer',
                 'min:2',
-                'max:5'
+                'max:5',
             ],
 
             'color' => [
                 'nullable',
                 'string',
-                'max:100'
+                'max:100',
             ],
 
             'condition' => [
                 'nullable',
-                'in:neuf,occasion,reconditionne'
+                'in:neuf,occasion,reconditionne',
             ],
 
             'availability' => [
                 'nullable',
-                'in:disponible,reserve,vendu'
+                'in:disponible,reserve,vendu',
             ],
 
 
@@ -179,39 +185,39 @@ class ProductController extends Controller
             'manufacturer_reference' => [
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
             ],
 
             'piece_category' => [
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
             ],
 
             'compatibility' => [
                 'nullable',
-                'string'
+                'string',
             ],
 
             'piece_brand' => [
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
             ],
 
             'condition_piece' => [
                 'nullable',
-                'in:neuf,occasion,reconditionne'
+                'in:neuf,occasion,reconditionne',
             ],
 
             'warranty' => [
                 'nullable',
-                'in:sans,3_mois,6_mois,12_mois,24_mois'
+                'in:sans,3_mois,6_mois,12_mois,24_mois',
             ],
 
             'unit' => [
                 'nullable',
-                'in:piece,kit,lot,paire'
+                'in:piece,kit,lot,paire',
             ],
 
 
@@ -221,14 +227,14 @@ class ProductController extends Controller
 
             'images' => [
                 'nullable',
-                'array'
+                'array',
             ],
 
             'images.*' => [
                 'nullable',
                 'image',
                 'mimes:jpeg,png,webp',
-                'max:5120'
+                'max:5120',
             ],
         ]);
 
@@ -268,17 +274,36 @@ class ProductController extends Controller
 
 
         // =========================================================
-        // PHOTOS
+        // RECUPERATION DES IMAGES
         // =========================================================
 
-        unset($validated['images']);
+        $images = $request->file('images', []);
 
 
         // =========================================================
         // CREATION DU PRODUIT
         // =========================================================
 
-        Product::create($validated);
+        $product = Product::create($validated);
+
+
+        // =========================================================
+        // ENREGISTREMENT DES IMAGES
+        // =========================================================
+
+        foreach ($images as $index => $image) {
+
+            $path = $image->store(
+                'products',
+                'public'
+            );
+
+            $product->images()->create([
+                'path' => $path,
+                'original_name' => $image->getClientOriginalName(),
+                'sort_order' => $index,
+            ]);
+        }
 
 
         // =========================================================

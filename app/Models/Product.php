@@ -20,7 +20,10 @@ class Product extends Model
         'location',
         'status',
 
-        // Véhicule
+        // =====================================================
+        // VEHICULE
+        // =====================================================
+
         'vehicle_model',
         'vehicle_year',
         'fuel',
@@ -31,7 +34,10 @@ class Product extends Model
         'condition',
         'availability',
 
-        // Pièce
+        // =====================================================
+        // PIECE
+        // =====================================================
+
         'manufacturer_reference',
         'piece_category',
         'compatibility',
@@ -41,8 +47,22 @@ class Product extends Model
         'unit',
     ];
 
+
+    /**
+     * Un produit possède plusieurs mouvements de stock.
+     */
     public function stockMovements()
     {
         return $this->hasMany(StockMovement::class);
+    }
+
+
+    /**
+     * Un produit possède plusieurs images.
+     */
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class)
+            ->orderBy('sort_order');
     }
 }
