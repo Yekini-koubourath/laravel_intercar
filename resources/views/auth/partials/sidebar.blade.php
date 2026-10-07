@@ -275,89 +275,88 @@
             </div>
 
 
+<!-- =====================================================
+     VENTES
+====================================================== -->
 
-            <!-- =====================================================
-                 VENTES
-            ====================================================== -->
+<div class="sidebar-menu-group">
 
-            <div class="sidebar-menu-group">
+    <button type="button"
+            class="nav-link sidebar-menu-toggle"
+            data-menu="ventes">
 
-                <button type="button"
-                        class="nav-link sidebar-menu-toggle"
-                        data-menu="ventes">
+        <span class="sidebar-menu-content">
 
-                    <span class="sidebar-menu-content">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
 
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
+            <span>Ventes</span>
 
-                        <span>Ventes</span>
+        </span>
 
-                    </span>
+        <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
 
-                    <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
-
-                </button>
-
-
-                <div class="sidebar-submenu
-     {{ request()->routeIs('sales.*') ? 'open' : '' }}"
-     id="ventes">
+    </button>
 
 
-                    <!-- Nouvelle vente -->
-
-                   <a href="{{ route('sales.create') }}"
-   class="nav-link sidebar-submenu-link
-   {{ request()->routeIs('sales.create') ? 'active' : '' }}">
-
-    <i class="fa-solid fa-plus"></i>
-
-    <span>Nouvelle vente</span>
-
-</a>
+    <div class="sidebar-submenu
+        {{ request()->routeIs('sales.*') ? 'open' : '' }}"
+         id="ventes">
 
 
-                    <!-- Liste des ventes -->
+        <!-- Nouvelle vente -->
 
-                  <a href="{{ route('sales.index') }}"
-   class="nav-link sidebar-submenu-link
-   {{ request()->routeIs('sales.index', 'sales.show') ? 'active' : '' }}">
+        <a href="{{ route('sales.create') }}"
+           class="nav-link sidebar-submenu-link
+           {{ request()->routeIs('sales.create') ? 'active' : '' }}">
 
-    <i class="fa-solid fa-list"></i>
+            <i class="fa-solid fa-plus"></i>
 
-    <span>Liste des ventes</span>
+            <span>Nouvelle vente</span>
 
-</a>
-
-
-                    <!-- Détail d'une vente -->
-
-                   <a href="{{ route('sales.index') }}"
-   class="nav-link sidebar-submenu-link">
-
-    <i class="fa-solid fa-file-lines"></i>
-
-    <span>Détail d'une vente</span>
-
-</a>
+        </a>
 
 
-                    <!-- Retours -->
+        <!-- Liste des ventes -->
 
-                   <a href="{{ route('sales.returns.index') }}"
-   class="nav-link sidebar-submenu-link
-   {{ request()->routeIs('sales.returns.*') ? 'active' : '' }}">
+        <a href="{{ route('sales.index') }}"
+           class="nav-link sidebar-submenu-link
+           {{ request()->routeIs('sales.index') ? 'active' : '' }}">
 
-    <i class="fa-solid fa-rotate-left"></i>
+            <i class="fa-solid fa-list"></i>
 
-    <span>Retours</span>
+            <span>Liste des ventes</span>
 
-</a>
+        </a>
 
-                </div>
 
-            </div>
+        <!-- Détail d'une vente -->
 
+        <a href="{{ $sale ?? '#' }}"
+           class="nav-link sidebar-submenu-link
+           {{ request()->routeIs('sales.show') ? 'active' : '' }}">
+
+            <i class="fa-solid fa-file-lines"></i>
+
+            <span>Détail d'une vente</span>
+
+        </a>
+
+
+        <!-- Retours -->
+
+        <a href="{{ route('sales.returns.index') }}"
+           class="nav-link sidebar-submenu-link
+           {{ request()->routeIs('sales.returns.*') ? 'active' : '' }}">
+
+            <i class="fa-solid fa-rotate-left"></i>
+
+            <span>Retours</span>
+
+        </a>
+
+    </div>
+
+</div>
 
 
             <!-- =====================================================

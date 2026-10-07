@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockEntryController;
 
 
@@ -61,9 +62,10 @@ Route::middleware('auth')->group(function () {
     // DASHBOARD
     // =========================================================
 
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+   Route::get('/dashboard', [
+    DashboardController::class,
+    'index'
+])->name('dashboard');
 
 
     // =========================================================

@@ -25,16 +25,17 @@
         body {
             background: #f5f6fa;
         }
-.app-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 250px;
-    height: 100vh;
-    overflow-y: auto;
-    background: #30173D;
-    z-index: 1000;
-}
+
+        .app-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
+            overflow-y: auto;
+            background: #30173D;
+            z-index: 1000;
+        }
 
         .main-wrapper {
             margin-left: 250px;
@@ -46,7 +47,7 @@
             border-radius: 14px;
             padding: 24px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
         }
 
         .sale-card {
@@ -72,9 +73,11 @@
                 margin-left: 0;
                 padding: 20px;
             }
-    .app-sidebar {
-        display: none;
-    }
+
+            .app-sidebar {
+                display: none;
+            }
+
         }
 
     </style>
@@ -84,7 +87,9 @@
 <body>
 
 <aside class="app-sidebar">
+
     @include('auth.partials.sidebar')
+
 </aside>
 
 
@@ -109,11 +114,8 @@
             href="{{ route('sales.returns.index') }}"
             class="btn btn-outline-secondary"
         >
-
             <i class="fa-solid fa-arrow-left me-1"></i>
-
             Retour
-
         </a>
 
     </div>
@@ -123,7 +125,9 @@
 
         <div class="alert alert-danger">
 
-            <strong>Impossible d'enregistrer le retour.</strong>
+            <strong>
+                Impossible d'enregistrer le retour.
+            </strong>
 
             <ul class="mb-0 mt-2">
 
@@ -219,21 +223,22 @@
                             Sélectionner une vente
                         </option>
 
+
                         @foreach($sales as $sale)
 
                             <option
                                 value="{{ $sale->id }}"
-                                @selected(
-                                    request('sale') == $sale->id
-                                )
+                                @selected(request('sale') == $sale->id)
                             >
 
                                 {{ $sale->number }}
 
                                 —
+
                                 {{ $sale->customer_name ?: 'Client comptoir' }}
 
                                 —
+
                                 {{ $sale->sale_date->format('d/m/Y') }}
 
                             </option>
@@ -267,7 +272,9 @@
             <div id="itemsContainer">
 
                 <div class="text-muted text-center py-4">
+
                     Sélectionnez d'abord une vente.
+
                 </div>
 
             </div>
@@ -326,12 +333,15 @@
 
 <script>
 
-const sales = @json(
+const sales = {{ Js::from(
     $sales->map(function ($sale) {
 
         return [
+
             'id' => $sale->id,
+
             'number' => $sale->number,
+
             'items' => $sale->items->map(function ($item) {
 
                 $alreadyReturned =
@@ -344,20 +354,29 @@ const sales = @json(
                     );
 
                 return [
+
                     'id' => $item->id,
+
                     'product_id' => $item->product_id,
+
                     'product_name' => $item->product->name,
+
                     'reference' => $item->product->reference,
+
                     'quantity' => $item->quantity,
+
                     'remaining' => $remaining,
+
                     'unit_price' => (float) $item->unit_price,
+
                 ];
 
             })->values(),
+
         ];
 
     })->values()
-);
+) }};
 
 
 const saleSelect =
@@ -369,17 +388,13 @@ const itemsContainer =
 
 function formatMoney(value)
 {
-    return new Intl.NumberFormat(
-        'fr-FR'
-    ).format(value) + ' FCFA';
+    return new Intl.NumberFormat('fr-FR').format(value) + ' FCFA';
 }
 
 
 function renderItems()
 {
-    const saleId =
-        saleSelect.value;
-
+    const saleId = saleSelect.value;
 
     itemsContainer.innerHTML = '';
 
@@ -398,9 +413,7 @@ function renderItems()
 
     const sale =
         sales.find(function (s) {
-
             return s.id == saleId;
-
         });
 
 
@@ -432,12 +445,12 @@ function renderItems()
         const row =
             document.createElement('div');
 
+
         row.className =
             'border rounded p-3 mb-3';
 
 
         row.innerHTML = `
-
             <div class="row align-items-center g-3">
 
                 <div class="col-md-5">
@@ -451,9 +464,13 @@ function renderItems()
                     </div>
 
                     <div class="small text-muted">
+
                         Vendu : ${item.quantity}
+
                         |
+
                         Encore retournable : ${item.remaining}
+
                     </div>
 
                 </div>
@@ -510,7 +527,6 @@ function renderItems()
                 </div>
 
             </div>
-
         `;
 
 
@@ -534,14 +550,12 @@ function renderItems()
             function () {
 
                 const quantity =
-                    parseInt(
-                        quantityInput.value
-                    ) || 0;
+                    parseInt(quantityInput.value) || 0;
+
 
                 lineTotal.textContent =
                     formatMoney(
-                        quantity *
-                        item.unit_price
+                        quantity * item.unit_price
                     );
 
             }
@@ -569,66 +583,65 @@ saleSelect.addEventListener(
 );
 
 
-document.getElementById(
-    'returnForm'
-).addEventListener(
-    'submit',
-    function (event) {
+document.getElementById('returnForm')
+    .addEventListener(
+        'submit',
+        function (event) {
 
-        let hasQuantity = false;
-
-
-        itemsContainer
-            .querySelectorAll(
-                'input[type="number"]'
-            )
-            .forEach(function (input) {
-
-                if (
-                    parseInt(input.value) > 0
-                ) {
-
-                    hasQuantity = true;
-
-                }
-
-            });
+            let hasQuantity = false;
 
 
-        if (!hasQuantity) {
+            itemsContainer
+                .querySelectorAll(
+                    'input[type="number"]'
+                )
+                .forEach(function (input) {
 
-            event.preventDefault();
+                    if (
+                        parseInt(input.value) > 0
+                    ) {
+                        hasQuantity = true;
+                    }
 
-            alert(
-                'Veuillez sélectionner au moins une quantité à retourner.'
-            );
+                });
 
-            return;
+
+            if (!hasQuantity) {
+
+                event.preventDefault();
+
+                alert(
+                    'Veuillez sélectionner au moins une quantité à retourner.'
+                );
+
+                return;
+            }
+
+
+            const button =
+                document.getElementById(
+                    'submitReturn'
+                );
+
+
+            button.disabled = true;
+
+
+            button.innerHTML = `
+                <span
+                    class="spinner-border spinner-border-sm me-1"
+                ></span>
+                Enregistrement...
+            `;
+
         }
-
-
-        const button =
-            document.getElementById(
-                'submitReturn'
-            );
-
-
-        button.disabled = true;
-
-        button.innerHTML = `
-            <span
-                class="spinner-border spinner-border-sm me-1"
-            ></span>
-            Enregistrement...
-        `;
-
-    }
-);
+    );
 
 
 renderItems();
 
 </script>
+
 
 </body>
 
