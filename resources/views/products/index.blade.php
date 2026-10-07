@@ -1738,9 +1738,9 @@ textarea.form-control{
                     @endphp
 
 
-                    <img src="{{ asset('storage/' . $firstImage->path) }}"
-                         alt="{{ $product->name }}"
-                         class="product-table-image">
+                  <img src="{{ route('product.image', ['path' => $firstImage->path]) }}"
+     alt="{{ $product->name }}"
+     class="product-table-image">
 
 
                     @if($product->images->count() > 1)

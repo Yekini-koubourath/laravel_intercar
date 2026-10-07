@@ -5,6 +5,7 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 
 // =============================================================
@@ -102,4 +103,14 @@ Route::middleware('auth')->group(function () {
         AuthController::class,
         'logout'
     ])->name('logout');
+
+    Route::get('/product-image/{path}', function ($path) {
+
+    if (!Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    return Storage::disk('public')->response($path);
+
+})->where('path', '.*')->name('product.image');
 });
