@@ -273,63 +273,6 @@
         </div>
     </div>
 
-    {{-- 5. PRIX DE REVIENT --}}
-    <div class="section-card">
-        <div class="section-header">
-            <div class="section-number">5</div>
-            <div>
-                <h2 class="section-title">Calcul du prix de revient</h2>
-                <p class="section-description">Prix de revient = prix d'achat + somme des frais annexes.</p>
-            </div>
-        </div>
-        <div class="section-body">
-            <div class="calculation-box">
-                <div class="calculation-row"><span class="text-muted">Prix d'achat en FCFA</span><strong id="costPurchase">0 XOF</strong></div>
-                <div class="calculation-row"><span class="text-muted">Total des frais annexes</span><strong id="costExpenses">0 XOF</strong></div>
-                <div class="calculation-row total"><span>Prix de revient total</span><span id="totalCost">0 XOF</span></div>
-                <div class="calculation-row"><span class="text-muted">Prix de revient unitaire</span><strong id="unitCost">0 XOF</strong></div>
-            </div>
-        </div>
-    </div>
-
-    {{-- 6. TARIFICATION --}}
-    <div class="section-card">
-        <div class="section-header">
-            <div class="section-number">6</div>
-            <div>
-                <h2 class="section-title">Tarification</h2>
-                <p class="section-description">Prix de vente souhaité et marge.</p>
-            </div>
-        </div>
-        <div class="section-body">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label" for="selling_price">Prix de vente unitaire <span class="required">*</span></label>
-                    <div class="input-group">
-                        <input type="number" name="selling_price"id="selling_price" class="form-control"
-                               min="0" step="0.01" value="{{ old('selling_price', 0) }}" required>
-                        <span class="input-group-text">XOF</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Marge unitaire</label>
-                    <div class="input-group">
-                        <input type="text" id="unitMargin" class="form-control fw-semibold" value="0" readonly>
-                        <span class="input-group-text">XOF</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Marge %</label>
-                    <input type="text" id="marginPercentage" class="form-control" value="0 %" readonly>
-                </div>
-                <div class="col-12">
-                    <div class="alert alert-light border mb-0">
-                        Marge totale sur cette entrée : <strong id="totalMargin">0 XOF</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
 </div>
 

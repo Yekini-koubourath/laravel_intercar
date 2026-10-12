@@ -85,8 +85,9 @@ class StockEntryController extends Controller
     }
 
     /**
-     * Enregistrer l'entrée : achat + frais + mouvement de stock + mise à jour du produit.
-     * Tous les calculs sont refaits côté serveur.
+     * Enregistrer une entrée :
+     * achat + frais + mouvement de stock + mise à jour du produit.
+     * Les calculs sont effectués côté serveur.
      */
     public function store(Request $request)
     {
@@ -105,7 +106,10 @@ class StockEntryController extends Controller
             'currency'           => ['required', Rule::in(array_keys(Purchase::CURRENCIES))],
             'unit_price'         => ['required', 'numeric', 'min:0'],
             'exchange_rate'      => ['nullable', 'numeric', 'gt:0'],
-            'selling_price'      => ['required', 'numeric', 'min:0'],
+
+            // Le prix de vente est désormais facultatif.
+            'selling_price'      => ['nullable', 'numeric', 'min:0'],
+
             'observation'        => ['nullable', 'string'],
 
             'expenses'               => ['nullable', 'array'],
@@ -136,7 +140,8 @@ class StockEntryController extends Controller
             $latestRates[$currency] = ExchangeRate::latestToXof($currency);
         }
 
-        // Déterminer le taux de l'achat : taux manuel prioritaire s'il est fourni.
+        // Déterminer le taux de l'achat.
+        // Le taux manuel est prioritaire lorsqu'il est fourni.
         $purchaseRate = null;
         $purchaseLatestRate = null;
 
@@ -156,7 +161,7 @@ class StockEntryController extends Controller
             }
         }
 
-        // Vérifier que chaque devise de frais possède un taux disponible.
+        // Vérifier les taux nécessaires aux frais annexes.
         foreach ($expensesInput as $index => $expense) {
             $currency = $expense['currency'];
 
@@ -230,7 +235,7 @@ class StockEntryController extends Controller
             $purchaseOriginal = $qty * (float) $data['unit_price'];
             $purchaseXof = $toXof($purchaseOriginal, $purchaseCurrency);
 
-            // Calcul des frais.
+            // Calcul des frais annexes.
             $expenseRows = [];
             $expensesXof = 0.0;
 
@@ -248,16 +253,26 @@ class StockEntryController extends Controller
                 ];
             }
 
-            // Prix de revient et marge.
+            // Calcul du prix de revient.
             $totalCost = $purchaseXof + $expensesXof;
             $unitCost = $totalCost / $qty;
-            $unitMargin = (float) $data['selling_price'] - $unitCost;
+
+            // Charger le produit.
+            $product = Product::lockForUpdate()->findOrFail($data['product_id']);
+
+            // Conserver le prix de vente actuel si aucun nouveau prix n'est fourni.
+            $sellingPrice = isset($data['selling_price'])
+                ? (float) $data['selling_price']
+                : (float) ($product->selling_price ?? 0);
+
+            // Calcul de la marge historique.
+            $unitMargin = $sellingPrice - $unitCost;
+
             $marginPercent = $unitCost > 0
                 ? ($unitMargin / $unitCost) * 100
                 : 0;
 
             // Mise à jour du stock.
-            $product = Product::lockForUpdate()->findOrFail($data['product_id']);
             $stockAvant = $product->quantity;
             $stockApres = $stockAvant + $qty;
             $number = Purchase::nextNumber();
@@ -277,12 +292,18 @@ class StockEntryController extends Controller
                 'observation' => $data['observation'] ?? null,
             ]);
 
-            // Mettre à jour le produit.
-            $product->update([
+            // Mettre à jour la quantité et le prix de revient du produit.
+            $productData = [
                 'quantity'       => $stockApres,
                 'purchase_price' => round($unitCost, 2),
-                'selling_price'  => $data['selling_price'],
-            ]);
+            ];
+
+            // Ne modifier le prix de vente que si un nouveau prix est fourni.
+            if (isset($data['selling_price'])) {
+                $productData['selling_price'] = $sellingPrice;
+            }
+
+            $product->update($productData);
 
             // Enregistrer l'achat et son taux historique.
             $purchase = Purchase::create([
@@ -309,12 +330,13 @@ class StockEntryController extends Controller
                 'expenses_total_xof'      => round($expensesXof, 2),
                 'total_cost_xof'          => round($totalCost, 2),
                 'unit_cost_xof'           => round($unitCost, 2),
-                'selling_price'           => $data['selling_price'],
+                'selling_price'           => $sellingPrice,
                 'unit_margin'             => round($unitMargin, 2),
                 'margin_percent'          => round($marginPercent, 2),
                 'observation'             => $data['observation'] ?? null,
             ]);
 
+            // Enregistrer les frais annexes.
             if (! empty($expenseRows)) {
                 $purchase->expenses()->createMany($expenseRows);
             }

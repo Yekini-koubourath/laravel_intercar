@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockEntryController;
+use App\Http\Controllers\TarificationController;
 
 
 // =============================================================
@@ -166,6 +167,21 @@ Route::get('/ventes/{sale}', [
     'show'
 ])->name('sales.show');
 
+
+
+// =========================================================
+// TARIFICATION
+// =========================================================
+
+Route::get('/tarification', [
+    TarificationController::class,
+    'index'
+])->name('tarification.index');
+
+Route::patch('/tarification/{product}', [
+    TarificationController::class,
+    'update'
+])->name('tarification.update');
 
     // =========================================================
     // DECONNEXION

@@ -194,35 +194,19 @@
             </div>
 
 
-            <!-- TARIFICATION -->
-            <div class="sidebar-menu-group">
-                <button type="button" class="nav-link sidebar-menu-toggle" data-menu="tarification" aria-expanded="false">
-                    <span class="sidebar-menu-content">
-                        <i class="fa-solid fa-tags"></i>
-                        <span class="sidebar-label">Tarification</span>
-                    </span>
-                    <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
-                </button>
+          
+<!-- TARIFICATION : lien direct, sans sous-menu -->
+<a
+    href="{{ route('tarification.index') }}"
+    title="Tarification"
+    class="nav-link sidebar-main-link {{ request()->routeIs('tarification.*') ? 'active' : '' }}"
+>
+    <span class="sidebar-menu-content">
+        <i class="fa-solid fa-tags"></i>
+        <span class="sidebar-label">Tarification</span>
+    </span>
+</a>
 
-                <div class="sidebar-submenu" id="tarification">
-                    <div class="sidebar-submenu-title">Tarification</div>
-
-                    <a href="#" class="nav-link sidebar-submenu-link">
-                        <i class="fa-solid fa-calculator"></i>
-                        <span>Prix de revient</span>
-                    </a>
-
-                    <a href="#" class="nav-link sidebar-submenu-link">
-                        <i class="fa-solid fa-tag"></i>
-                        <span>Prix de vente</span>
-                    </a>
-
-                    <a href="#" class="nav-link sidebar-submenu-link">
-                        <i class="fa-solid fa-chart-line"></i>
-                        <span>Marges</span>
-                    </a>
-                </div>
-            </div>
 
         </nav>
 
