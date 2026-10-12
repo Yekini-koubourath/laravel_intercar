@@ -144,63 +144,103 @@
             </div>
         </div>
     </div>
+   
 
-    {{-- 3. PRIX D'ACHAT --}}
-    <div class="section-card">
-        <div class="section-header">
-            <div class="section-number">3</div>
-            <div>
-                <h2 class="section-title">Prix d'achat et devise</h2>
-                <p class="section-description">Saisissez le prix dans la devise de la facture. L'équivalent en FCFA est calculé automatiquement.</p>
-            </div>
-        </div>
-        <div class="section-body">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label" for="currency">Devise d'achat <span class="required">*</span></label>
-                    <select name="currency" id="currency" class="form-select">
-                        @foreach($currencies as $value => $label)
-                            <option value="{{ $value }}" {{ old('currency', 'NGN') === $value ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label" for="unit_price">Prix d'achat unitaire <span class="required">*</span></label>
-                    <div class="input-group">
-                        <input type="number" name="unit_price" id="unit_price" class="form-control"
-                               min="0" step="0.01" value="{{ old('unit_price', 0) }}" required>
-                        <span class="input-group-text currency-label">NGN</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Total prix d'achat</label>
-                    <div class="input-group">
-                        <input type="text" id="purchaseTotal" class="form-control" value="0" readonly>
-                        <span class="input-group-text currency-label">NGN</span>
-                    </div>
-                </div>
-
-                <div class="col-md-6" id="exchangeRateSection">
-                    <label class="form-label" for="exchange_rate">Taux de change <span class="small text-muted">(devise d'achat vers XOF)</span></label>
-                    <div class="input-group">
-                        <span class="input-group-text" id="exchangeRatePrefix">1 NGN =</span>
-                        <input type="number" name="exchange_rate" id="exchange_rate" class="form-control"
-                               min="0" step="0.00000001"
-                               value="{{ old('exchange_rate', (($rates[old('currency', 'NGN')] ?? null)?->rate)) }}">
-                        <span class="input-group-text">XOF</span>
-                    </div>
-                    <div class="form-text" id="exchangeRateHelp"></div>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Équivalent en FCFA</label>
-                    <div class="input-group">
-                        <input type="text" id="convertedTotal" class="form-control fw-semibold" value="0" readonly>
-                        <span class="input-group-text">XOF</span>
-                    </div>
-                </div>
-            </div>
+{{-- 3. PRIX D'ACHAT --}}
+<div class="section-card">
+    <div class="section-header">
+        <div class="section-number">3</div>
+        <div>
+            <h2 class="section-title">Prix d'achat et devise</h2>
+            <p class="section-description">
+                Saisissez le prix unitaire et choisissez la devise.
+                La conversion en FCFA est automatique.
+            </p>
         </div>
     </div>
+
+    <div class="section-body">
+        <div class="row g-3 align-items-end">
+
+            {{-- Prix d'achat unitaire --}}
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="unit_price">
+                    Prix d'achat unitaire
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="number"
+                    name="unit_price"
+                    id="unit_price"
+                    class="form-control"
+                    min="0"
+                    step="0.01"
+                    value="{{ old('unit_price', 0) }}"
+                    placeholder="Montant"
+                    required
+                >
+            </div>
+
+            {{-- Devise de conversion --}}
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="currency">
+                    Devise
+                    <span class="required">*</span>
+                </label>
+
+                <select
+                    name="currency"
+                    id="currency"
+                    class="form-select"
+                    required
+                >
+                    @foreach($currencies as $value => $label)
+                        <option
+                            value="{{ $value }}"
+                            {{ old('currency', 'NGN') === $value ? 'selected' : '' }}
+                        >
+                            {{ $value }} → XOF
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Prix total converti --}}
+            <div class="col-12 col-md-4">
+                <label class="form-label">
+                    Prix total en FCFA
+                </label>
+
+                <div class="input-group">
+                    <input
+                        type="text"
+                        id="convertedTotal"
+                        class="form-control fw-semibold text-success"
+                        value="0"
+                        readonly
+                    >
+
+                    <span class="input-group-text">XOF</span>
+                </div>
+            </div>
+
+        </div>
+
+        {{-- Taux transmis au contrôleur, sans saisie manuelle --}}
+        <input
+            type="hidden"
+            name="exchange_rate"
+            id="exchange_rate"
+            value="{{ old('exchange_rate', (($rates[old('currency', 'NGN')] ?? null)?->rate)) }}"
+        >
+
+        <div class="small text-muted mt-3" id="exchangeRateHelp"></div>
+
+    </div>
+</div>
+
+
 
     {{-- 4. FRAIS ANNEXES --}}
     <div class="section-card">
@@ -485,37 +525,38 @@ document.addEventListener('DOMContentLoaded', function () {
     $('addExpense').addEventListener('click', () => addExpense());
 
     /* ---------- Devises et taux ---------- */
-    function setRateForCurrency(resetRate = true) {
-        const cur = $('currency').value;
-        const section = $('exchangeRateSection');
-        const rateInput = $('exchange_rate');
-        const prefix = $('exchangeRatePrefix');
-        const help = $('exchangeRateHelp');
+  
+function setRateForCurrency(resetRate = true) {
+    const cur = $('currency').value;
+    const rateInput = $('exchange_rate');
+    const help = $('exchangeRateHelp');
 
-        if (cur === 'XOF') {
-            section.classList.add('d-none');
-            rateInput.value = '';
-            help.textContent = '';
-            return;
-        }
-
-        section.classList.remove('d-none');
-        prefix.textContent = `1 ${cur} =`;
-
-        const info = rates[cur];
-
-        if (resetRate) {
-            rateInput.value = info && info.rate ? info.rate : '';
-        }
-
-        if (!info || !info.rate) {
-            help.innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>Aucun taux enregistré. Lancez <code>php artisan rates:update</code> ou saisissez un taux valide.</span>';
-        } else {
-            const statusClass = info.stale ? 'text-warning' : 'text-success';
-            const statusText = info.stale ? 'taux ancien' : 'taux à jour';
-            help.innerHTML = `<span class="${statusClass}"><i class="bi ${info.stale ? 'bi-exclamation-triangle' : 'bi-check-circle'} me-1"></i>1 ${cur} = ${fmt(Number(info.rate))} XOF — taux du ${info.date} (${info.source}), ${statusText}. Vous pouvez ajuster ce taux pour cet achat.</span>`;
-        }
+    if (cur === 'XOF') {
+        rateInput.value = 1;
+        help.textContent = 'Conversion XOF → XOF : aucun change nécessaire.';
+        return;
     }
+
+    const info = rates[cur];
+    const rate = info && Number(info.rate) > 0
+        ? Number(info.rate)
+        : 0;
+
+    if (resetRate || !rateInput.value) {
+        rateInput.value = rate || '';
+    }
+
+    if (!rate) {
+        help.textContent =
+            `Aucun taux enregistré pour ${cur}. Vérifiez les taux de change dans Laravel.`;
+        return;
+    }
+
+    help.textContent =
+        `Taux utilisé : 1 ${cur} = ${fmt(rate)} XOF` +
+        (info.date ? ` · Mise à jour : ${info.date}` : '');
+}
+
 
     function toXof(amount, currency, purchaseCurrency, purchaseRate) {
         if (currency === 'XOF') return amount;
@@ -531,59 +572,74 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* ---------- Calculs ---------- */
-    function update() {
-        const qty   = parseFloat($('quantity').value) || 0;
-        const price = parseFloat($('unit_price').value) || 0;
-        const rate  = parseFloat($('exchange_rate').value) || 0;
-        const cur   = $('currency').value;
+  
+function update() {
+    const qty = parseFloat($('quantity').value) || 0;
+    const price = parseFloat($('unit_price').value) || 0;
+    const cur = $('currency').value;
 
-        document.querySelectorAll('.currency-label').forEach(el => el.textContent = cur);
+    const rate = cur === 'XOF'
+        ? 1
+        : (parseFloat($('exchange_rate').value) || 0);
 
-        const purchase = qty * price;
-        const purchaseX = toXof(purchase, cur, cur, rate);
-        $('purchaseTotal').value = fmt(purchase);
-        $('convertedTotal').value = fmt(purchaseX);
+    // Prix total d'achat converti en FCFA
+    const purchase = qty * price;
+    const purchaseX = purchase * rate;
 
-        let expenses = 0;
-        const rows = document.querySelectorAll('.expense-row');
+    $('convertedTotal').value = fmt(purchaseX);
 
-        rows.forEach(row => {
-            const amount = parseFloat(row.querySelector('.expense-amount').value) || 0;
-            const expenseCurrency = row.querySelector('.expense-currency').value;
-            expenses += toXof(amount, expenseCurrency, cur, rate);
-        });
+    // Conversion des frais annexes
+    let expenses = 0;
+    const rows = document.querySelectorAll('.expense-row');
 
-        $('emptyExpense').style.display = rows.length ? 'none' : 'block';
-        $('expensesTotal').textContent = fmt(expenses) + ' XOF';
+    rows.forEach(row => {
+        const amount =
+            parseFloat(row.querySelector('.expense-amount').value) || 0;
 
-        const total = purchaseX + expenses;
-        const unit = qty > 0 ? total / qty : 0;
+        const expenseCurrency =
+            row.querySelector('.expense-currency').value;
 
-        $('costPurchase').textContent = fmt(purchaseX) + ' XOF';
-        $('costExpenses').textContent = fmt(expenses) + ' XOF';
-        $('totalCost').textContent = fmt(total) + ' XOF';
-        $('unitCost').textContent = fmt(unit) + ' XOF';
+        expenses += toXof(amount, expenseCurrency, cur, rate);
+    });
 
-        const sale = parseFloat($('selling_price').value) || 0;
-        const margin = sale - unit;
+    $('emptyExpense').style.display = rows.length ? 'none' : 'block';
+    $('expensesTotal').textContent = fmt(expenses) + ' XOF';
 
-        $('unitMargin').value = fmt(margin);
-        $('marginPercentage').value = fmt(unit > 0 ? margin / unit * 100 : 0) + ' %';
-        $('totalMargin').textContent = fmt(margin * qty) + ' XOF';
+    // Prix de revient
+    const total = purchaseX + expenses;
+    const unit = qty > 0 ? total / qty : 0;
 
-        const after = selectedStock + qty;
-        $('currentStock').textContent = fmt(selectedStock);
-        $('previewQuantity').textContent = fmt(qty);
-        $('newStock').textContent = fmt(after);
-        $('previewMovementQuantity').textContent = '+' + fmt(qty);
-        $('previewStockBefore').textContent = fmt(selectedStock);
-        $('previewStockAfter').textContent = fmt(after);
+    $('costPurchase').textContent = fmt(purchaseX) + ' XOF';
+    $('costExpenses').textContent = fmt(expenses) + ' XOF';
+    $('totalCost').textContent = fmt(total) + ' XOF';
+    $('unitCost').textContent = fmt(unit) + ' XOF';
 
-        $('traceCurrency').textContent = cur;
-        $('traceRate').textContent = cur === 'XOF'
-            ? '1 XOF = 1 XOF'
-            : (rate > 0 ? `1 ${cur} = ${fmt(rate)} XOF` : 'Taux indisponible');
-    }
+    // Marges
+    const sale = parseFloat($('selling_price').value) || 0;
+    const margin = sale - unit;
+
+    $('unitMargin').value = fmt(margin);
+    $('marginPercentage').value =
+        fmt(unit > 0 ? margin / unit * 100 : 0) + ' %';
+
+    $('totalMargin').textContent = fmt(margin * qty) + ' XOF';
+
+    // Aperçu du stock
+    const after = selectedStock + qty;
+
+    $('currentStock').textContent = fmt(selectedStock);
+    $('previewQuantity').textContent = fmt(qty);
+    $('newStock').textContent = fmt(after);
+    $('previewMovementQuantity').textContent = '+' + fmt(qty);
+    $('previewStockBefore').textContent = fmt(selectedStock);
+    $('previewStockAfter').textContent = fmt(after);
+
+    // Traçabilité
+    $('traceCurrency').textContent = cur;
+    $('traceRate').textContent =
+        `1 ${cur} = ${fmt(rate)} XOF`;
+}
+
 
     ['quantity', 'unit_price', 'exchange_rate', 'selling_price'].forEach(id => {
         $(id).addEventListener('input', update);
