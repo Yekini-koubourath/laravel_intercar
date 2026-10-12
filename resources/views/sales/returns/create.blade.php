@@ -67,21 +67,19 @@
             background: #fff8ed;
         }
 
-        @media (max-width: 991px) {
+       @media (max-width: 991px) {
 
-            .main-wrapper {
-                margin-left: 0;
-                padding: 20px;
-            }
+    .topbar {
+        padding: 0 20px;
+    }
 
-            .app-sidebar {
-                display: none;
-            }
-
-        }
+    .page-content {
+        padding: 20px;
+    }
+}
 
     </style>
-
+@include('auth.partials.sidebar-layout')
 </head>
 
 <body>

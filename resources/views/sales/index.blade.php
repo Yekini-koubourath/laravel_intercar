@@ -41,40 +41,7 @@
     }
 
 
-    /* =====================================================
-       SIDEBAR
-    ====================================================== */
-
-    .app-sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 250px;
-        height: 100vh;
-        overflow-y: auto;
-        background: #30173D;
-        z-index: 1100;
-        transition: transform 0.3s ease;
-    }
-
-
-    /* =====================================================
-       OVERLAY MOBILE
-    ====================================================== */
-
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.45);
-        z-index: 1050;
-    }
-
-    .sidebar-overlay.show {
-        display: block;
-    }
-
-
+ 
     /* =====================================================
        MAIN
     ====================================================== */
@@ -108,23 +75,6 @@
         gap: 15px;
     }
 
-    .sidebar-toggle {
-        width: 42px;
-        height: 42px;
-        border: none;
-        border-radius: 10px;
-        background: #f5f6fa;
-        color: #30173D;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        cursor: pointer;
-    }
-
-    .sidebar-toggle:hover {
-        background: #eeeeee;
-    }
 
     .topbar-title {
         font-size: 18px;
@@ -204,32 +154,16 @@
        RESPONSIVE
     ====================================================== */
 
-    @media (max-width: 991px) {
+   @media (max-width: 991px) {
 
-        .app-sidebar {
-            transform: translateX(-100%);
-        }
-
-        .app-sidebar.show {
-            transform: translateX(0);
-        }
-
-        .main-wrapper {
-            margin-left: 0;
-        }
-
-        .topbar {
-            padding: 0 20px;
-        }
-
-        .sidebar-toggle {
-            display: flex;
-        }
-
-        .page-content {
-            padding: 20px;
-        }
+    .topbar {
+        padding: 0 20px;
     }
+
+    .page-content {
+        padding: 20px;
+    }
+}
 
 
     @media (max-width: 575px) {
@@ -251,6 +185,7 @@
 
 </style>
 
+@include('auth.partials.sidebar-layout')
 </head>
 
 <body>
@@ -258,21 +193,7 @@
 <!-- =========================================================
      SIDEBAR
 ========================================================== -->
-
-<aside class="app-sidebar" id="appSidebar">
-
 @include('auth.partials.sidebar')
-
-</aside>
-
-<!-- =========================================================
-     OVERLAY MOBILE
-========================================================== -->
-
-<div
-    class="sidebar-overlay"
-    id="sidebarOverlay"
-></div>
 
 <!-- =========================================================
      CONTENU PRINCIPAL
@@ -288,14 +209,6 @@
 
     <div class="topbar-left">
 
-        <button
-            type="button"
-            class="sidebar-toggle"
-            id="sidebarToggle"
-            aria-label="Ouvrir le menu"
-        >
-            <i class="fa-solid fa-bars"></i>
-        </button>
 
         <div class="topbar-title">
             Ventes

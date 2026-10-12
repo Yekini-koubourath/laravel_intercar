@@ -584,49 +584,25 @@
            MOBILE
         ========================================================== */
 
-        @media (max-width: 991.98px) {
+    @media (max-width: 991.98px) {
 
-            .sidebar {
-                transform: translateX(-100%);
-                max-width: 85vw;
-            }
+    .main-wrapper {
+        padding: 1rem 1rem 7rem;
+    }
 
+    .bottom-actions {
+        padding: .75rem 1rem;
+    }
 
-            .sidebar.open {
-                transform: translateX(0);
-            }
+    .sticky-side {
+        position: static;
+    }
 
-
-            .main-wrapper {
-                margin-left: 0;
-
-                padding: 1rem 1rem 7rem;
-            }
-
-
-            .bottom-actions {
-                left: 0;
-
-                padding: .75rem 1rem;
-            }
-
-
-            .sticky-side {
-                position: static;
-            }
-
-
-            #sidebarToggle {
-                display: inline-flex;
-            }
-
-
-            .stock-topbar {
-                top: .75rem;
-
-                padding: .65rem .75rem;
-            }
-        }
+    .stock-topbar {
+        top: .75rem;
+        padding: .65rem .75rem;
+    }
+}
 
 
         @media (max-width: 575.98px) {
@@ -643,6 +619,7 @@
         }
 
     </style>
+@include('auth.partials.sidebar-layout')
 
     @stack('styles')
 
@@ -658,12 +635,8 @@
     @include('auth.partials.sidebar')
 
 
-    {{-- =========================================================
-         OVERLAY MOBILE
-    ========================================================== --}}
-
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
+   
+    
 
     {{-- =========================================================
          CONTENU PRINCIPAL

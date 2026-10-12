@@ -5,7 +5,7 @@
 
 @section('content')
 
-<div class="mb-4 d-flex justify-content-between align-items-start gap-2 flex-wrap">
+<div class="mb-4 d-flex justify-content-between align-items-startgap-2 flex-wrap">
     <div>
         <h1 class="page-title mb-1">
             <i class="bi bi-box-arrow-in-down me-2" style="color:var(--purple);"></i>Nouvelle entrée de stock
@@ -68,7 +68,7 @@
 
                 <div class="col-12">
                     <label class="form-label" for="observation">Observation</label>
-                    <textarea name="observation" id="observation" class="form-control" rows="3"
+                    <textarea name="observation" id="observation"class="form-control" rows="3"
                               placeholder="Informations complémentaires…">{{ old('observation') }}</textarea>
                 </div>
             </div>
@@ -85,7 +85,7 @@
             </div>
         </div>
         <div class="section-body">
-            <label class="form-label">Rechercher un produit <span class="required">*</span></label>
+            <label class="form-label">Rechercher un produit <spanclass="required">*</span></label>
 
             <div class="product-search-wrapper">
                 <div class="input-group">
@@ -106,7 +106,7 @@
                              data-cost="{{ $product->purchase_price ?? 0 }}"
                              data-unit="{{ $product->unit }}">
                             <div class="fw-semibold">{{ $product->name }}</div>
-                            <div class="small text-muted">Réf. {{ $product->reference }} · Stock : {{ $product->quantity }}</div>
+                            <div class="small text-muted">Réf. {{$product->reference }} · Stock : {{ $product->quantity }}</div>
                         </div>
                     @empty
                         <div class="p-3 text-muted small">Aucun produit disponible.</div>
@@ -121,11 +121,11 @@
                         <div class="small text-muted">Réf. : <span id="selectedProductReference"></span></div>
                         <div class="small text-muted">Dernier prix de revient : <span id="selectedProductCost">-</span></div>
                     </div>
-                    <span class="badge bg-light text-dark border" id="selectedProductType"></span>
+                    <span class="badge bg-light text-dark border"id="selectedProductType"></span>
                 </div>
             </div>
 
-            <input type="hidden" name="product_id" id="productId" value="{{ old('product_id') }}">
+            <input type="hidden" name="product_id" id="productId"value="{{ old('product_id') }}">
 
             <div class="row g-3 mt-1">
                 <div class="col-md-6">
@@ -151,7 +151,7 @@
             <div class="section-number">3</div>
             <div>
                 <h2 class="section-title">Prix d'achat et devise</h2>
-                <p class="section-description">Le prix peut être saisi en Naira ou en Franc CFA.</p>
+                <p class="section-description">Saisissez le prix dans la devise de la facture. L'équivalent en FCFA est calculé automatiquement.</p>
             </div>
         </div>
         <div class="section-body">
@@ -180,24 +180,16 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label" for="exchange_rate">Taux de change <span class="small text-muted">(utilisé si NGN)</span></label>
+                <div class="col-md-6" id="exchangeRateSection">
+                    <label class="form-label" for="exchange_rate">Taux de change <span class="small text-muted">(devise d'achat vers XOF)</span></label>
                     <div class="input-group">
-                        <span class="input-group-text">1 NGN =</span>
+                        <span class="input-group-text" id="exchangeRatePrefix">1 NGN =</span>
                         <input type="number" name="exchange_rate" id="exchange_rate" class="form-control"
-                               min="0" step="0.00000001" value="{{ old('exchange_rate', $rate?->rate) }}">
+                               min="0" step="0.00000001"
+                               value="{{ old('exchange_rate', (($rates[old('currency', 'NGN')] ?? null)?->rate)) }}">
                         <span class="input-group-text">XOF</span>
                     </div>
-                    <div class="form-text">
-                        @if($rate)
-                            <i class="bi {{ $rate->isStale() ? 'bi-exclamation-triangle text-warning' : 'bi-check-circle text-success' }} me-1"></i>
-                            Taux du {{ $rate->rate_date->format('d/m/Y') }} ({{ $rate->source }}) —
-                            {{ $rate->isStale() ? 'non à jour' : 'à jour' }}. Le taux utilisé est conservé avec l'achat.
-                        @else
-                            <i class="bi bi-exclamation-triangle text-warning me-1"></i>
-                            Aucun taux enregistré. Saisissez-le ou lancez <code>php artisan rates:update</code>.
-                        @endif
-                    </div>
+                    <div class="form-text" id="exchangeRateHelp"></div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Équivalent en FCFA</label>
@@ -216,7 +208,7 @@
             <div class="section-number">4</div>
             <div class="flex-grow-1">
                 <h2 class="section-title">Frais annexes</h2>
-                <p class="section-description">Transport, douane, manutention, frais de dossier, etc.</p>
+                <p class="section-description">Transport, douane,manutention, frais de dossier, etc.</p>
             </div>
             <button type="button" class="btn btn-sm btn-outline-secondary" id="addExpense">
                 <i class="bi bi-plus-lg me-1"></i>Ajouter un frais
@@ -274,7 +266,7 @@
                 <div class="col-md-4">
                     <label class="form-label" for="selling_price">Prix de vente unitaire <span class="required">*</span></label>
                     <div class="input-group">
-                        <input type="number" name="selling_price" id="selling_price" class="form-control"
+                        <input type="number" name="selling_price"id="selling_price" class="form-control"
                                min="0" step="0.01" value="{{ old('selling_price', 0) }}" required>
                         <span class="input-group-text">XOF</span>
                     </div>
@@ -332,8 +324,8 @@
             <div class="info-line"><span class="text-muted">Produit</span><strong id="previewProduct">-</strong></div>
             <div class="info-line"><span class="text-muted">Type</span><span class="badge bg-success">Entrée</span></div>
             <div class="info-line"><span class="text-muted">Quantité</span><strong id="previewMovementQuantity">+0</strong></div>
-            <div class="info-line"><span class="text-muted">Stock avant</span><strong id="previewStockBefore">0</strong></div>
-            <div class="info-line"><span class="text-muted">Stock après</span><strong id="previewStockAfter">0</strong></div>
+            <div class="info-line"><span class="text-muted">Stockavant</span><strong id="previewStockBefore">0</strong></div>
+            <div class="info-line"><span class="text-muted">Stockaprès</span><strong id="previewStockAfter">0</strong></div>
         </div>
     </div>
 
@@ -346,12 +338,12 @@
             <div class="info-line"><span class="text-muted">Utilisateur</span><strong>{{ Auth::user()->name }}</strong></div>
             <div class="info-line"><span class="text-muted">Devise d'origine</span><strong id="traceCurrency">NGN</strong></div>
             <div class="info-line"><span class="text-muted">Taux utilisé</span><strong id="traceRate">-</strong></div>
-            <div class="small text-muted mt-2">La date et l'heure d'enregistrement sont ajoutées automatiquement.</div>
+            <div class="small text-muted mt-2">La date et l'heured'enregistrement sont ajoutées automatiquement.</div>
         </div>
     </div>
 
     <div class="alert alert-warning">
-        <i class="bi bi-info-circle-fill me-2"></i><strong>Rappel :</strong>
+        <i class="bi bi-info-circle-fill me-2"></i><strong>Rappel:</strong>
         la validation augmente le stock, met à jour le prix de revient et le prix de vente du produit, et crée un mouvement d'entrée.
     </div>
 
@@ -361,7 +353,7 @@
 
 <div class="bottom-actions">
     <div class="d-flex justify-content-end gap-2">
-        <a href="{{ route('stock.index') }}" class="btn btn-light border">Annuler</a>
+        <a href="{{ route('stock.index') }}" class="btn btn-lightborder">Annuler</a>
         <button type="submit" class="btn btn-purple">
             <i class="bi bi-check-lg me-1"></i>Valider l'entrée
         </button>
@@ -380,6 +372,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const expenseTypes = @json($expenseTypes);
     const oldExpenses  = @json(old('expenses', []));
+    const currencyOptions = @json(array_keys($currencies));
+    const rates = {
+        NGN: {
+            rate: @json(($rates['NGN'] ?? null)?->rate),
+            date: @json(($rates['NGN'] ?? null)?->rate_date?->format('d/m/Y')),
+            source: @json(($rates['NGN'] ?? null)?->source),
+            stale: @json(($rates['NGN'] ?? null)?->isStale()),
+        },
+        EUR: {
+            rate: @json(($rates['EUR'] ?? null)?->rate),
+            date: @json(($rates['EUR'] ?? null)?->rate_date?->format('d/m/Y')),
+            source: @json(($rates['EUR'] ?? null)?->source),
+            stale: @json(($rates['EUR'] ?? null)?->isStale()),
+        },
+        USD: {
+            rate: @json(($rates['USD'] ?? null)?->rate),
+            date: @json(($rates['USD'] ?? null)?->rate_date?->format('d/m/Y')),
+            source: @json(($rates['USD'] ?? null)?->source),
+            stale: @json(($rates['USD'] ?? null)?->isStale()),
+        },
+    };
 
     let selectedStock = 0;
     let expenseIndex  = 0;
@@ -454,8 +467,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <td><input type="text" name="expenses[${i}][description]" class="form-control" placeholder="Description"></td>
             <td><input type="number" name="expenses[${i}][amount]" class="form-control expense-amount" min="0" step="0.01" value="0"></td>
             <td><select name="expenses[${i}][currency]" class="form-select expense-currency">
-                <option value="XOF">XOF</option><option value="NGN">NGN</option></select></td>
-            <td><button type="button" class="btn btn-sm btn-light border remove-expense"><i class="bi bi-trash"></i></button></td>`;
+                ${currencyOptions.map(code => `<option value="${code}">${code}</option>`).join('')}</select></td>
+            <td><button type="button" class="btn btn-sm btn-lightborder remove-expense"><i class="bi bi-trash"></i></button></td>`;
         expensesBody.appendChild(row);
 
         if (data.type) row.querySelector(`[name="expenses[${i}][type]"]`).value = data.type;
@@ -471,6 +484,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('addExpense').addEventListener('click', () => addExpense());
 
+    /* ---------- Devises et taux ---------- */
+    function setRateForCurrency(resetRate = true) {
+        const cur = $('currency').value;
+        const section = $('exchangeRateSection');
+        const rateInput = $('exchange_rate');
+        const prefix = $('exchangeRatePrefix');
+        const help = $('exchangeRateHelp');
+
+        if (cur === 'XOF') {
+            section.classList.add('d-none');
+            rateInput.value = '';
+            help.textContent = '';
+            return;
+        }
+
+        section.classList.remove('d-none');
+        prefix.textContent = `1 ${cur} =`;
+
+        const info = rates[cur];
+
+        if (resetRate) {
+            rateInput.value = info && info.rate ? info.rate : '';
+        }
+
+        if (!info || !info.rate) {
+            help.innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>Aucun taux enregistré. Lancez <code>php artisan rates:update</code> ou saisissez un taux valide.</span>';
+        } else {
+            const statusClass = info.stale ? 'text-warning' : 'text-success';
+            const statusText = info.stale ? 'taux ancien' : 'taux à jour';
+            help.innerHTML = `<span class="${statusClass}"><i class="bi ${info.stale ? 'bi-exclamation-triangle' : 'bi-check-circle'} me-1"></i>1 ${cur} = ${fmt(Number(info.rate))} XOF — taux du ${info.date} (${info.source}), ${statusText}. Vous pouvez ajuster ce taux pour cet achat.</span>`;
+        }
+    }
+
+    function toXof(amount, currency, purchaseCurrency, purchaseRate) {
+        if (currency === 'XOF') return amount;
+
+        if (currency === purchaseCurrency && purchaseRate > 0) {
+            return amount * purchaseRate;
+        }
+
+        const rateInfo = rates[currency];
+        return rateInfo && Number(rateInfo.rate) > 0
+            ? amount * Number(rateInfo.rate)
+            : 0;
+    }
+
     /* ---------- Calculs ---------- */
     function update() {
         const qty   = parseFloat($('quantity').value) || 0;
@@ -480,47 +539,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.querySelectorAll('.currency-label').forEach(el => el.textContent = cur);
 
-        const purchase  = qty * price;
-        const purchaseX = cur === 'NGN' ? purchase * rate : purchase;
-        $('purchaseTotal').value   = fmt(purchase);
-        $('convertedTotal').value  = fmt(purchaseX);
+        const purchase = qty * price;
+        const purchaseX = toXof(purchase, cur, cur, rate);
+        $('purchaseTotal').value = fmt(purchase);
+        $('convertedTotal').value = fmt(purchaseX);
 
         let expenses = 0;
         const rows = document.querySelectorAll('.expense-row');
-        rows.forEach(r => {
-            const a = parseFloat(r.querySelector('.expense-amount').value) || 0;
-            expenses += r.querySelector('.expense-currency').value === 'NGN' ? a * rate : a;
+
+        rows.forEach(row => {
+            const amount = parseFloat(row.querySelector('.expense-amount').value) || 0;
+            const expenseCurrency = row.querySelector('.expense-currency').value;
+            expenses += toXof(amount, expenseCurrency, cur, rate);
         });
+
         $('emptyExpense').style.display = rows.length ? 'none' : 'block';
         $('expensesTotal').textContent = fmt(expenses) + ' XOF';
 
         const total = purchaseX + expenses;
-        const unit  = qty > 0 ? total / qty : 0;
-        $('costPurchase').textContent  = fmt(purchaseX) + ' XOF';
-        $('costExpenses').textContent  = fmt(expenses) + ' XOF';
-        $('totalCost').textContent     = fmt(total) + ' XOF';
-        $('unitCost').textContent      = fmt(unit) + ' XOF';
+        const unit = qty > 0 ? total / qty : 0;
 
-        const sale   = parseFloat($('selling_price').value) || 0;
+        $('costPurchase').textContent = fmt(purchaseX) + ' XOF';
+        $('costExpenses').textContent = fmt(expenses) + ' XOF';
+        $('totalCost').textContent = fmt(total) + ' XOF';
+        $('unitCost').textContent = fmt(unit) + ' XOF';
+
+        const sale = parseFloat($('selling_price').value) || 0;
         const margin = sale - unit;
-        $('unitMargin').value       = fmt(margin);
+
+        $('unitMargin').value = fmt(margin);
         $('marginPercentage').value = fmt(unit > 0 ? margin / unit * 100 : 0) + ' %';
         $('totalMargin').textContent = fmt(margin * qty) + ' XOF';
 
         const after = selectedStock + qty;
-        $('currentStock').textContent  = fmt(selectedStock);
+        $('currentStock').textContent = fmt(selectedStock);
         $('previewQuantity').textContent = fmt(qty);
-        $('newStock').textContent      = fmt(after);
+        $('newStock').textContent = fmt(after);
         $('previewMovementQuantity').textContent = '+' + fmt(qty);
         $('previewStockBefore').textContent = fmt(selectedStock);
-        $('previewStockAfter').textContent  = fmt(after);
+        $('previewStockAfter').textContent = fmt(after);
 
         $('traceCurrency').textContent = cur;
-        $('traceRate').textContent = (cur === 'NGN' || expenses > 0) && rate ? String(rate) : '-';
+        $('traceRate').textContent = cur === 'XOF'
+            ? '1 XOF = 1 XOF'
+            : (rate > 0 ? `1 ${cur} = ${fmt(rate)} XOF` : 'Taux indisponible');
     }
 
-    ['quantity', 'unit_price', 'exchange_rate', 'selling_price'].forEach(id => $(id).addEventListener('input', update));
-    $('currency').addEventListener('change', update);
+    ['quantity', 'unit_price', 'exchange_rate', 'selling_price'].forEach(id => {
+        $(id).addEventListener('input', update);
+    });
+
+    $('currency').addEventListener('change', function () {
+        setRateForCurrency(true);
+        update();
+    });
 
     /* ---------- Envoi ---------- */
     $('stockEntryForm').addEventListener('submit', function (e) {
@@ -542,6 +614,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /* ---------- Initialisation (réaffichage après erreur) ---------- */
+    setRateForCurrency(false);
     Object.values(oldExpenses).forEach(addExpense);
 
     const oldProduct = $('productId').value;

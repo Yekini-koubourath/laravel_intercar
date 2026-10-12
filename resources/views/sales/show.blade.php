@@ -56,21 +56,20 @@
             padding: 24px;
         }
 
-        @media (max-width: 991px) {
+      @media (max-width: 991px) {
 
-            .main-wrapper {
-                margin-left: 0;
-                padding: 20px;
-            }
-
-              .app-sidebar {
-        display: none;
+    .topbar {
+        padding: 0 20px;
     }
 
-        }
+    .page-content {
+        padding: 20px;
+    }
+}
+
 
     </style>
-
+@include('auth.partials.sidebar-layout')
 </head>
 
 <body>

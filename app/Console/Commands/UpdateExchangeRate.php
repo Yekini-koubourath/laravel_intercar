@@ -11,38 +11,82 @@ class UpdateExchangeRate extends Command
 {
     protected $signature = 'rates:update';
 
-    protected $description = 'Récupère le taux NGN → XOF et l\'ajoute à l\'historique';
+    protected $description = 'Met à jour les taux NGN, EUR et USD vers XOF';
 
     public function handle(): int
     {
-        $rate = null;
+        // Devises dont nous voulons récupérer le taux vers le franc CFA.
+        $currencies = ['NGN', 'EUR', 'USD'];
 
-        try {
-            $response = Http::timeout(15)->retry(2, 500)
-                ->get('https://open.er-api.com/v6/latest/NGN');
+        $hasError = false;
 
-            if ($response->successful()) {
-                $rate = data_get($response->json(), 'rates.XOF');
+        foreach ($currencies as $currency) {
+            try {
+                $response = Http::timeout(15)
+                    ->retry(2, 500)
+                    ->get("https://open.er-api.com/v6/latest/{$currency}");
+
+                if (! $response->successful()) {
+                    throw new \RuntimeException(
+                        "Erreur HTTP {$response->status()} pour {$currency}."
+                    );
+                }
+
+                $data = $response->json();
+
+                if (data_get($data, 'result') !== 'success') {
+                    throw new \RuntimeException(
+                        "La réponse de l'API est invalide pour {$currency}."
+                    );
+                }
+
+                $rate = data_get($data, 'rates.XOF');
+
+                if (! is_numeric($rate) || (float) $rate <= 0) {
+                    throw new \RuntimeException(
+                        "Taux XOF absent ou invalide pour {$currency}."
+                    );
+                }
+
+                // Une seule valeur par devise et par date.
+                // Une nouvelle exécution le même jour actualise la ligne.
+                ExchangeRate::updateOrCreate(
+                    [
+                        'base_currency'   => $currency,
+                        'target_currency' => 'XOF',
+                        'rate_date'       => now()->toDateString(),
+                    ],
+                    [
+                        'rate'   => $rate,
+                        'source' => 'open.er-api.com',
+                    ]
+                );
+
+                $this->info(
+                    "1 {$currency} = "
+                    . number_format((float) $rate, 6, '.', '')
+                    . ' XOF enregistré.'
+                );
+            } catch (\Throwable $e) {
+                $hasError = true;
+
+                Log::warning(
+                    "Mise à jour du taux {$currency} vers XOF : "
+                    . $e->getMessage()
+                );
+
+                $this->error(
+                    "Échec pour {$currency} → XOF. "
+                    . 'Le dernier taux enregistré est conservé.'
+                );
             }
-        } catch (\Throwable $e) {
-            Log::warning('Taux de change : ' . $e->getMessage());
         }
 
-        if (! $rate) {
-            // On conserve le dernier taux connu (il sera signalé "non à jour")
-            $this->warn('API indisponible : le dernier taux connu est conservé.');
+        if ($hasError) {
             return self::FAILURE;
         }
 
-        ExchangeRate::create([
-            'base_currency'   => 'NGN',
-            'target_currency' => 'XOF',
-            'rate'            => $rate,
-            'source'          => 'open.er-api.com',
-            'rate_date'       => now()->toDateString(),
-        ]);
-
-        $this->info("1 NGN = {$rate} XOF enregistré.");
+        $this->info('Tous les taux de change ont été mis à jour.');
 
         return self::SUCCESS;
     }

@@ -239,37 +239,16 @@
            MOBILE
         ====================================================== */
 
-        @media (max-width: 991.98px) {
+    @media (max-width: 991.98px) {
 
-            .app-sidebar {
-                transform: translateX(-100%);
+    .main-wrapper {
+        padding: 20px;
+    }
 
-                max-width: 85vw;
-            }
-
-
-            .app-sidebar.open {
-                transform: translateX(0);
-            }
-
-
-            .main-wrapper {
-                margin-left: 0;
-
-                padding: 20px;
-            }
-
-
-            .sidebar-toggle {
-                display: inline-flex;
-            }
-
-
-            .topbar {
-                padding: 10px 12px;
-            }
-
-        }
+    .topbar {
+        padding: 10px 12px;
+    }
+}
 
 
         @media (max-width: 575.98px) {
@@ -291,7 +270,7 @@
         }
 
     </style>
-
+@include('auth.partials.sidebar-layout')
 </head>
 
 
@@ -302,21 +281,7 @@
      SIDEBAR
 ========================================================== -->
 
-<aside class="app-sidebar" id="appSidebar">
-
-    @include('auth.partials.sidebar')
-
-</aside>
-
-
-<!-- =========================================================
-     OVERLAY
-========================================================== -->
-
-<div
-    class="sidebar-overlay"
-    id="sidebarOverlay"
-></div>
+@include('auth.partials.sidebar')
 
 
 <!-- =========================================================
@@ -334,20 +299,6 @@
 
 
         <div class="topbar-left">
-
-
-            <!-- BURGER -->
-
-            <button
-                type="button"
-                class="btn btn-light border sidebar-toggle"
-                id="sidebarToggle"
-                aria-label="Ouvrir le menu"
-            >
-
-                <i class="fa-solid fa-bars"></i>
-
-            </button>
 
 
             <!-- TITRE -->
@@ -721,81 +672,6 @@
 
 
 </div>
-
-
-<!-- =========================================================
-     JAVASCRIPT
-========================================================== -->
-
-<script>
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    const sidebar = document.getElementById('appSidebar');
-
-    const overlay = document.getElementById('sidebarOverlay');
-
-    const toggle = document.getElementById('sidebarToggle');
-
-
-    if (!sidebar || !overlay || !toggle) {
-        return;
-    }
-
-
-    function openSidebar() {
-
-        sidebar.classList.add('open');
-
-        overlay.classList.add('show');
-
-        document.body.style.overflow = 'hidden';
-
-    }
-
-
-    function closeSidebar() {
-
-        sidebar.classList.remove('open');
-
-        overlay.classList.remove('show');
-
-        document.body.style.overflow = '';
-
-    }
-
-
-    toggle.addEventListener('click', function () {
-
-        if (sidebar.classList.contains('open')) {
-
-            closeSidebar();
-
-        } else {
-
-            openSidebar();
-
-        }
-
-    });
-
-
-    overlay.addEventListener('click', closeSidebar);
-
-
-    window.addEventListener('resize', function () {
-
-        if (window.innerWidth > 991.98) {
-
-            closeSidebar();
-
-        }
-
-    });
-
-});
-
-</script>
 
 
 </body>

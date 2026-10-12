@@ -388,20 +388,8 @@
 
         @media (max-width: 991.98px) {
 
-            .sidebar {
-                transform: translateX(-100%);
-                max-width: 85vw;
-            }
-
-
-            .sidebar.open {
-                transform: translateX(0);
-                box-shadow: 8px 0 24px rgba(0, 0, 0, 0.25);
-            }
-
 
             .main-wrapper {
-                margin-left: 0;
                 padding: 1rem;
             }
 
@@ -433,28 +421,14 @@
         }
 
     </style>
-
+@include('auth.partials.sidebar-layout')
 </head>
 
 
 <body>
 
-
-    <!-- =========================================================
-         OVERLAY MOBILE
-    ========================================================== -->
-
-    <div class="sidebar-overlay"
-         id="sidebarOverlay"></div>
-
-
-    <!-- =========================================================
-         SIDEBAR
-    ========================================================== -->
-
-    @include('auth.partials.sidebar')
-
-
+@include('auth.partials.sidebar')
+   
     <!-- =========================================================
          MAIN CONTENT
     ========================================================== -->
@@ -468,17 +442,6 @@
 
         <header class="top-bar d-flex align-items-center justify-content-between gap-2 mb-4">
 
-
-            <!-- Bouton menu mobile -->
-
-            <button type="button"
-                    class="btn btn-light border d-lg-none flex-shrink-0"
-                    id="sidebarToggle"
-                    aria-label="Ouvrir le menu">
-
-                <i class="fa-solid fa-bars"></i>
-
-            </button>
 
 
             <!-- Recherche -->
@@ -590,36 +553,45 @@
              TITRE
         ====================================================== -->
 
-        <div class="d-flex align-items-center gap-3 mb-4">
+<div class="d-flex justify-content-between align-items-center gap-3 mb-4">
 
-            <div class="p-2-5 rounded-3 text-white d-flex align-items-center justify-content-center flex-shrink-0"
-                 style="background-color: var(--purple-sidebar);
-                        width: 42px;
-                        height: 42px;">
+    <!-- GAUCHE : Icône et titre -->
+    <div class="d-flex align-items-center gap-3">
 
-                <i class="fa-solid fa-border-all fs-5"></i>
+        <div class="p-2-5 rounded-3 text-white d-flex align-items-center justify-content-center flex-shrink-0"
+             style="background-color: var(--purple-sidebar);
+                    width: 42px;
+                    height: 42px;">
 
-            </div>
+            <i class="fa-solid fa-border-all fs-5"></i>
 
+        </div>
 
-            <div>
+        <div>
 
-                <h4 class="fw-bold mb-0"
-                    style="color: #1A202C;">
+            <h4 class="fw-bold mb-0" style="color: #1A202C;">
+                Tableau de bord
+            </h4>
 
-                    Tableau de bord
+            <p class="text-muted small mb-0">
+                Vue d'ensemble de votre activité —
+                {{ $periodLabel }}
+            </p>
 
-                </h4>
+        </div>
 
+    </div>
 
-                <p class="text-muted small mb-0">
+    <!-- DROITE : Bouton nouvelle entrée -->
+    <a href="{{ route('stock.entries.create') }}"
+       class="btn btn-purple flex-shrink-0">
 
-                    Vue d'ensemble de votre activité —
-                    {{ $periodLabel }}
+        <i class="fa-solid fa-plus me-1"></i>
+        Nouvelle entrée de stock
 
-                </p>
+    </a>
 
-            </div>
+</div>
 
         </div>
 
@@ -1749,109 +1721,9 @@
 
                 </span>
 
-            </div>
-
-
-            <a href="{{ route('stock.entries.create') }}"
-               class="btn btn-purple ms-auto">
-
-                <i class="fa-solid fa-plus me-1"></i>
-
-                Nouvelle entrée de stock
-
-            </a>
-
-        </div>
-
 
     </main>
 
-
-    <!-- =========================================================
-         MOBILE SIDEBAR
-    ========================================================== -->
-
-    <script>
-
-        (function () {
-
-            const sidebar = document.getElementById('sidebar');
-
-            const overlay = document.getElementById('sidebarOverlay');
-
-            const toggle = document.getElementById('sidebarToggle');
-
-            const close = document.getElementById('sidebarClose');
-
-
-            if (!sidebar || !toggle) {
-                return;
-            }
-
-
-            function openMenu() {
-
-                sidebar.classList.add('open');
-
-                if (overlay) {
-                    overlay.classList.add('show');
-                }
-
-                document.body.style.overflow = 'hidden';
-
-            }
-
-
-            function closeMenu() {
-
-                sidebar.classList.remove('open');
-
-                if (overlay) {
-                    overlay.classList.remove('show');
-                }
-
-                document.body.style.overflow = '';
-
-            }
-
-
-            toggle.addEventListener('click', openMenu);
-
-
-            if (close) {
-                close.addEventListener('click', closeMenu);
-            }
-
-
-            if (overlay) {
-                overlay.addEventListener('click', closeMenu);
-            }
-
-
-            document.addEventListener('keydown', function (event) {
-
-                if (event.key === 'Escape') {
-
-                    closeMenu();
-
-                }
-
-            });
-
-
-            window.addEventListener('resize', function () {
-
-                if (window.innerWidth >= 992) {
-
-                    closeMenu();
-
-                }
-
-            });
-
-        })();
-
-    </script>
 
 
 </body>

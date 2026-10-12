@@ -24,28 +24,38 @@ class StockEntryController extends Controller
         $purchases = Purchase::with(['supplier', 'product', 'user'])
             ->when($request->filled('q'), function ($query) use ($request) {
                 $s = trim($request->q);
+
                 $query->where(function ($w) use ($s) {
                     $w->where('number', 'like', "%{$s}%")
-                      ->orWhere('supplier_reference', 'like', "%{$s}%")
-                      ->orWhereHas('product', fn ($p) => $p
-                          ->where('name', 'like', "%{$s}%")
-                          ->orWhere('reference', 'like', "%{$s}%"));
+                        ->orWhere('supplier_reference', 'like', "%{$s}%")
+                        ->orWhereHas('product', fn ($p) => $p
+                            ->where('name', 'like', "%{$s}%")
+                            ->orWhere('reference', 'like', "%{$s}%"));
                 });
             })
-            ->when($request->filled('supplier_id'), fn ($q) => $q->where('supplier_id', $request->supplier_id))
-            ->when($request->filled('from'), fn ($q) => $q->whereDate('purchase_date', '>=', $request->from))
-            ->when($request->filled('to'), fn ($q) => $q->whereDate('purchase_date', '<=', $request->to))
+            ->when(
+                $request->filled('supplier_id'),
+                fn ($q) => $q->where('supplier_id', $request->supplier_id)
+            )
+            ->when(
+                $request->filled('from'),
+                fn ($q) => $q->whereDate('purchase_date', '>=', $request->from)
+            )
+            ->when(
+                $request->filled('to'),
+                fn ($q) => $q->whereDate('purchase_date', '<=', $request->to)
+            )
             ->orderByDesc('purchase_date')
             ->orderByDesc('id')
             ->paginate(15)
             ->withQueryString();
 
         return view('stock.entries.index', [
-            'purchases'      => $purchases,
-            'suppliers'      => Supplier::orderBy('name')->get(),
-            'countEntries'   => Purchase::count(),
-            'totalQuantity'  => Purchase::sum('quantity'),
-            'totalCost'      => Purchase::sum('total_cost_xof'),
+            'purchases'     => $purchases,
+            'suppliers'     => Supplier::orderBy('name')->get(),
+            'countEntries'  => Purchase::count(),
+            'totalQuantity' => Purchase::sum('quantity'),
+            'totalCost'     => Purchase::sum('total_cost_xof'),
         ]);
     }
 
@@ -54,10 +64,19 @@ class StockEntryController extends Controller
      */
     public function create()
     {
+        $rates = [];
+
+        foreach (['NGN', 'EUR', 'USD'] as $currency) {
+            $rates[$currency] = ExchangeRate::latestToXof($currency);
+        }
+
         return view('stock.entries.create', [
-            'products'     => Product::where('status', '!=', 'inactif')->orderBy('name')->get(),
+            'products'     => Product::where('status', '!=', 'inactif')
+                ->orderBy('name')
+                ->get(),
             'suppliers'    => Supplier::orderBy('name')->get(),
-            'rate'         => ExchangeRate::latestNgnXof(),
+            'rate'         => $rates['NGN'],
+            'rates'        => $rates,
             'nextNumber'   => Purchase::nextNumber(),
             'units'        => Purchase::UNITS,
             'currencies'   => Purchase::CURRENCIES,
@@ -73,7 +92,11 @@ class StockEntryController extends Controller
     {
         $data = $request->validate([
             'purchase_date'      => ['required', 'date', 'before_or_equal:today'],
-            'supplier_id'        => ['nullable', 'exists:suppliers,id', 'required_without:new_supplier'],
+            'supplier_id'        => [
+                'nullable',
+                'exists:suppliers,id',
+                'required_without:new_supplier',
+            ],
             'new_supplier'       => ['nullable', 'string', 'max:255'],
             'supplier_reference' => ['nullable', 'string', 'max:255'],
             'product_id'         => ['required', 'exists:products,id'],
@@ -86,71 +109,157 @@ class StockEntryController extends Controller
             'observation'        => ['nullable', 'string'],
 
             'expenses'               => ['nullable', 'array'],
-            'expenses.*.type'        => ['required', Rule::in(array_keys(Purchase::EXPENSE_TYPES))],
+            'expenses.*.type'        => [
+                'required',
+                Rule::in(array_keys(Purchase::EXPENSE_TYPES)),
+            ],
             'expenses.*.description' => ['nullable', 'string', 'max:255'],
             'expenses.*.amount'      => ['required', 'numeric', 'min:0'],
-            'expenses.*.currency'    => ['required', Rule::in(array_keys(Purchase::CURRENCIES))],
+            'expenses.*.currency'    => [
+                'required',
+                Rule::in(array_keys(Purchase::CURRENCIES)),
+            ],
         ], [
-            'supplier_id.required_without' => 'Veuillez choisir ou saisir un fournisseur.',
-            'purchase_date.before_or_equal' => 'La date de l\'achat ne peut pas être dans le futur.',
+            'supplier_id.required_without' =>
+                'Veuillez choisir ou saisir un fournisseur.',
+            'purchase_date.before_or_equal' =>
+                'La date de l’achat ne peut pas être dans le futur.',
         ]);
 
         $expensesInput = $data['expenses'] ?? [];
+        $purchaseCurrency = $data['currency'];
 
-        $usesNgn = $data['currency'] === 'NGN'
-            || collect($expensesInput)->contains(fn ($e) => $e['currency'] === 'NGN');
+        // Charger les derniers taux connus.
+        $latestRates = [];
 
-        if ($usesNgn && empty($data['exchange_rate'])) {
-            throw ValidationException::withMessages([
-                'exchange_rate' => 'Le taux de change NGN → XOF est requis.',
-            ]);
+        foreach (['NGN', 'EUR', 'USD'] as $currency) {
+            $latestRates[$currency] = ExchangeRate::latestToXof($currency);
         }
 
-        $purchase = DB::transaction(function () use ($data, $expensesInput, $usesNgn) {
+        // Déterminer le taux de l'achat : taux manuel prioritaire s'il est fourni.
+        $purchaseRate = null;
+        $purchaseLatestRate = null;
 
-            $rate   = $usesNgn ? (float) $data['exchange_rate'] : null;
-            $latest = $usesNgn ? ExchangeRate::latestNgnXof() : null;
-            $isLatest = $latest && abs($latest->rate - $rate) < 0.00000001;
+        if ($purchaseCurrency !== 'XOF') {
+            $purchaseLatestRate = $latestRates[$purchaseCurrency];
 
-            $toXof = fn (float $amount, string $cur) => $cur === 'NGN' ? $amount * $rate : $amount;
+            $purchaseRate = ! empty($data['exchange_rate'])
+                ? (float) $data['exchange_rate']
+                : $purchaseLatestRate?->rate;
 
-            // Fournisseur
+            if (! is_numeric($purchaseRate) || (float) $purchaseRate <= 0) {
+                throw ValidationException::withMessages([
+                    'exchange_rate' =>
+                        "Aucun taux valide n'est disponible pour {$purchaseCurrency} → XOF. "
+                        . 'Saisissez un taux ou mettez à jour les taux de change.',
+                ]);
+            }
+        }
+
+        // Vérifier que chaque devise de frais possède un taux disponible.
+        foreach ($expensesInput as $index => $expense) {
+            $currency = $expense['currency'];
+
+            if ($currency === 'XOF') {
+                continue;
+            }
+
+            if ($currency === $purchaseCurrency && $purchaseRate !== null) {
+                continue;
+            }
+
+            if (! $latestRates[$currency]) {
+                throw ValidationException::withMessages([
+                    "expenses.{$index}.currency" =>
+                        "Aucun taux enregistré pour {$currency} → XOF. "
+                        . 'Mettez à jour les taux de change avant de continuer.',
+                ]);
+            }
+        }
+
+        $purchase = DB::transaction(function () use (
+            $data,
+            $expensesInput,
+            $latestRates,
+            $purchaseCurrency,
+            $purchaseRate,
+            $purchaseLatestRate
+        ) {
+            $isLatest = $purchaseLatestRate !== null
+                && $purchaseRate !== null
+                && abs($purchaseLatestRate->rate - $purchaseRate) < 0.00000001;
+
+            // Convertir une somme dans sa devise d'origine vers le XOF.
+            $toXof = function (float $amount, string $currency) use (
+                $latestRates,
+                $purchaseCurrency,
+                $purchaseRate
+            ): float {
+                if ($currency === 'XOF') {
+                    return $amount;
+                }
+
+                if ($currency === $purchaseCurrency && $purchaseRate !== null) {
+                    return $amount * $purchaseRate;
+                }
+
+                $rate = $latestRates[$currency] ?? null;
+
+                if (! $rate || $rate->rate <= 0) {
+                    throw new \RuntimeException(
+                        "Taux de change indisponible pour {$currency} → XOF."
+                    );
+                }
+
+                return $amount * $rate->rate;
+            };
+
+            // Fournisseur.
             $supplier = null;
+
             if (! empty(trim($data['new_supplier'] ?? ''))) {
-                $supplier = Supplier::firstOrCreate(['name' => trim($data['new_supplier'])]);
+                $supplier = Supplier::firstOrCreate([
+                    'name' => trim($data['new_supplier']),
+                ]);
             } elseif (! empty($data['supplier_id'])) {
                 $supplier = Supplier::find($data['supplier_id']);
             }
 
-            // Calculs
-            $qty               = (int) $data['quantity'];
-            $purchaseOriginal  = $qty * (float) $data['unit_price'];
-            $purchaseXof       = $toXof($purchaseOriginal, $data['currency']);
+            // Calcul du prix d'achat.
+            $qty = (int) $data['quantity'];
+            $purchaseOriginal = $qty * (float) $data['unit_price'];
+            $purchaseXof = $toXof($purchaseOriginal, $purchaseCurrency);
 
-            $expenseRows  = [];
-            $expensesXof  = 0;
-            foreach ($expensesInput as $e) {
-                $xof = $toXof((float) $e['amount'], $e['currency']);
+            // Calcul des frais.
+            $expenseRows = [];
+            $expensesXof = 0.0;
+
+            foreach ($expensesInput as $expense) {
+                $amount = (float) $expense['amount'];
+                $xof = $toXof($amount, $expense['currency']);
                 $expensesXof += $xof;
+
                 $expenseRows[] = [
-                    'type'        => $e['type'],
-                    'description' => $e['description'] ?? null,
-                    'amount'      => $e['amount'],
-                    'currency'    => $e['currency'],
+                    'type'        => $expense['type'],
+                    'description' => $expense['description'] ?? null,
+                    'amount'      => $amount,
+                    'currency'    => $expense['currency'],
                     'amount_xof'  => round($xof, 2),
                 ];
             }
 
-            $totalCost     = $purchaseXof + $expensesXof;
-            $unitCost      = $totalCost / $qty;
-            $unitMargin    = (float) $data['selling_price'] - $unitCost;
-            $marginPercent = $unitCost > 0 ? ($unitMargin / $unitCost) * 100 : 0;
+            // Prix de revient et marge.
+            $totalCost = $purchaseXof + $expensesXof;
+            $unitCost = $totalCost / $qty;
+            $unitMargin = (float) $data['selling_price'] - $unitCost;
+            $marginPercent = $unitCost > 0
+                ? ($unitMargin / $unitCost) * 100
+                : 0;
 
-            // Stock
-            $product     = Product::lockForUpdate()->findOrFail($data['product_id']);
-            $stockAvant  = $product->quantity;
-            $stockApres  = $stockAvant + $qty;
-
+            // Mise à jour du stock.
+            $product = Product::lockForUpdate()->findOrFail($data['product_id']);
+            $stockAvant = $product->quantity;
+            $stockApres = $stockAvant + $qty;
             $number = Purchase::nextNumber();
 
             $movement = StockMovement::create([
@@ -160,17 +269,22 @@ class StockEntryController extends Controller
                 'quantity'    => $qty,
                 'stock_avant' => $stockAvant,
                 'stock_apres' => $stockApres,
-                'motif'       => Str::limit('Achat ' . $number . ($supplier ? ' - ' . $supplier->name : ''), 250, ''),
+                'motif'       => Str::limit(
+                    'Achat ' . $number . ($supplier ? ' - ' . $supplier->name : ''),
+                    250,
+                    ''
+                ),
                 'observation' => $data['observation'] ?? null,
             ]);
 
-            // Le produit reçoit le nouveau stock, le prix de revient unitaire et le prix de vente
+            // Mettre à jour le produit.
             $product->update([
                 'quantity'       => $stockApres,
                 'purchase_price' => round($unitCost, 2),
                 'selling_price'  => $data['selling_price'],
             ]);
 
+            // Enregistrer l'achat et son taux historique.
             $purchase = Purchase::create([
                 'number'                  => $number,
                 'purchase_date'           => $data['purchase_date'],
@@ -179,13 +293,17 @@ class StockEntryController extends Controller
                 'product_id'              => $product->id,
                 'user_id'                 => Auth::id(),
                 'stock_movement_id'       => $movement->id,
-                'exchange_rate_id'        => $isLatest ? $latest->id : null,
+                'exchange_rate_id'        => $isLatest
+                    ? $purchaseLatestRate->id
+                    : null,
                 'quantity'                => $qty,
                 'unit'                    => $data['unit'],
-                'currency'                => $data['currency'],
+                'currency'                => $purchaseCurrency,
                 'unit_price'              => $data['unit_price'],
-                'exchange_rate'           => $rate,
-                'exchange_rate_source'    => $usesNgn ? ($isLatest ? $latest->source : 'manuel') : null,
+                'exchange_rate'           => $purchaseRate,
+                'exchange_rate_source'    => $purchaseCurrency === 'XOF'
+                    ? null
+                    : ($isLatest ? $purchaseLatestRate->source : 'manuel'),
                 'purchase_total_original' => round($purchaseOriginal, 2),
                 'purchase_total_xof'      => round($purchaseXof, 2),
                 'expenses_total_xof'      => round($expensesXof, 2),
@@ -197,7 +315,7 @@ class StockEntryController extends Controller
                 'observation'             => $data['observation'] ?? null,
             ]);
 
-            if ($expenseRows) {
+            if (! empty($expenseRows)) {
                 $purchase->expenses()->createMany($expenseRows);
             }
 
@@ -206,7 +324,10 @@ class StockEntryController extends Controller
 
         return redirect()
             ->route('stock.entries.show', $purchase)
-            ->with('success', "Entrée {$purchase->number} enregistrée : le stock a été mis à jour.");
+            ->with(
+                'success',
+                "Entrée {$purchase->number} enregistrée : le stock a été mis à jour."
+            );
     }
 
     /**
@@ -214,7 +335,13 @@ class StockEntryController extends Controller
      */
     public function show(Purchase $purchase)
     {
-        $purchase->load(['supplier', 'product', 'user', 'expenses', 'stockMovement']);
+        $purchase->load([
+            'supplier',
+            'product',
+            'user',
+            'expenses',
+            'stockMovement',
+        ]);
 
         return view('stock.entries.show', [
             'purchase'     => $purchase,
