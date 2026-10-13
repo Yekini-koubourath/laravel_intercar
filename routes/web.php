@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockEntryController;
 use App\Http\Controllers\TarificationController;
+use Illuminate\Support\Facades\Artisan;
 
 
 // =============================================================
@@ -195,6 +196,25 @@ Route::patch('/tarification/{product}', [
     TarificationController::class,
     'update'
 ])->name('tarification.update');
+
+// =========================================================
+// ACTUALISATION DES TAUX DE CHANGE
+// =========================================================
+
+Route::post('/tarification/taux/actualiser', function () {
+    $exitCode = Artisan::call('rates:update');
+
+    if ($exitCode === 0) {
+        return redirect()
+            ->route('tarification.index')
+            ->with('success', 'Les taux de change ont été actualisés.');
+    }
+
+    return redirect()
+        ->route('tarification.index')
+        ->with('error', 'La mise à jour a échoué. Les derniers taux enregistrés sont conservés.');
+})->name('tarification.rates.update');
+
 
     // =========================================================
     // DECONNEXION

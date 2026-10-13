@@ -6,14 +6,26 @@
 @section('content')
 <div class="container-fluid px-0 tarification-page">
 
-    {{-- En-tête --}}
-    <div class="page-heading mb-4">
-        <div>
-            <h1 class="page-title">Tarification</h1>
-            <p class="page-subtitle">
-                Enregistrez le prix et le stock d'un produit, puis consultez et modifiez vos tarifs.
-            </p>
-        </div>
+
+{{-- En-tête --}}
+<div class="page-heading mb-4">
+    <div class="page-heading-text">
+        <h1 class="page-title">Tarification</h1>
+        <p class="page-subtitle">
+            Enregistrez le prix et le stock d'un produit, puis consultez et modifiez vos tarifs.
+        </p>
+    </div>
+
+    <div class="page-heading-actions">
+        <form action="{{ route('tarification.rates.update') }}"
+              method="POST">
+            @csrf
+
+            <button type="submit" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrows-rotate me-2"></i>
+                Actualiser les taux
+            </button>
+        </form>
 
         <button type="button"
                 class="btn btn-filter"
@@ -23,6 +35,8 @@
             Nouvelle tarification
         </button>
     </div>
+</div>
+
 
     {{-- Notification de succès --}}
 
@@ -49,6 +63,14 @@
         });
     </script>
 @endif
+
+    {{-- Notification d'erreur de mise à jour des taux --}}
+    @if (session('error'))
+        <div class="alert alert-danger" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+            {{ session('error') }}
+        </div>
+    @endif
 
 
     {{-- Erreurs --}}
@@ -836,8 +858,56 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
+        gap: 20px;
+    min-width: 0;
     }
+
+    .page-heading-text {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.page-heading-actions {
+    display: flex;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.page-heading-actions form {
+    margin: 0;
+}
+
+.page-heading-actions .btn {
+    white-space: normal;
+}
+
+/* Tablettes et téléphones */
+@media (max-width: 768px) {
+    .page-heading {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .page-heading-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .page-heading-actions form,
+    .page-heading-actions form button,
+    .page-heading-actions > button {
+        width: 100%;
+    }
+
+    .page-heading-actions .btn {
+        min-height: 44px;
+    }
+}
 
     .page-title {
         margin: 0 0 7px;
@@ -1329,6 +1399,18 @@
         .te-modal .modal-footer { display: grid; grid-template-columns: 1fr 1fr; }
         .te-modal .modal-footer .btn { width: 100%; }
     }
+
+/* Petits téléphones */
+@media (max-width: 380px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.875rem;
+        overflow-wrap: anywhere;
+    }
+}
 
 /* =========================================================
    CORRECTION DU DÉFILEMENT — NOUVELLE TARIFICATION
