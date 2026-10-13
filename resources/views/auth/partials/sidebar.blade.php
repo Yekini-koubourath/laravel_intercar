@@ -116,11 +116,11 @@
                         <span>Liste des ventes</span>
                     </a>
 
-                    <a href="{{ $sale ?? '#' }}"
+                   <!-- <a href="{{ $sale ?? '#' }}"
                        class="nav-link sidebar-submenu-link {{ request()->routeIs('sales.show') ? 'active' : '' }}">
                         <i class="fa-solid fa-file-lines"></i>
                         <span>Détail d'une vente</span>
-                    </a>
+                    </a>-->
 
                     <a href="{{ route('sales.returns.index') }}"
                        class="nav-link sidebar-submenu-link {{ request()->routeIs('sales.returns.*') ? 'active' : '' }}">
