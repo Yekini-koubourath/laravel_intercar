@@ -110,4 +110,36 @@ class StockController extends Controller
             ->route('stock.movements.index')
             ->with('success', 'Sortie de stock enregistrée avec succès.');
     }
+
+    /**
+     * Page Alertes : produits en rupture ou sous le seuil minimum.
+     */
+    public function alerts()
+    {
+        $products = Product::whereColumn(
+            'quantity',
+            '<=',
+            'stock_minimum'
+        )
+            ->orderBy('quantity')
+            ->orderBy('name')
+            ->get();
+
+        $totalAlerts = $products->count();
+
+        $ruptures = $products->filter(function ($product) {
+            return $product->quantity <= 0;
+        })->count();
+
+        $stockFaible = $products->filter(function ($product) {
+            return $product->quantity > 0;
+        })->count();
+
+        return view('stock.alerts', compact(
+            'products',
+            'totalAlerts',
+            'ruptures',
+            'stockFaible'
+        ));
+    }
 }

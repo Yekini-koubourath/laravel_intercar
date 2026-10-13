@@ -92,6 +92,10 @@ Route::middleware('auth')->group(function () {
         StockController::class,
         'index'
     ])->name('stock.index');
+    Route::get('/stock/alertes', [
+    StockController::class,
+    'alerts'
+])->name('stock.alerts');
         Route::get('/stock/mouvements', [
         StockController::class,
         'movements'

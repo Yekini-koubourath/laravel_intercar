@@ -83,10 +83,13 @@
                         <span>Mouvements de stock</span>
                     </a>
 
-                    <a href="#" class="nav-link sidebar-submenu-link">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <span>Alertes stock faible</span>
-                    </a>
+                   <a href="{{ route('stock.alerts') }}"
+   class="nav-link sidebar-submenu-link {{ request()->routeIs('stock.alerts') ? 'active' : '' }}">
+
+    <i class="fa-solid fa-triangle-exclamation"></i>
+
+    <span>Alertes stock faible</span>
+</a>
                 </div>
             </div>
 
