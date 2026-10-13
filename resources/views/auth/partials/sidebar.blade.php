@@ -91,6 +91,60 @@
             </div>
 
 
+            <!-- VENTES -->
+            <div class="sidebar-menu-group">
+                <button type="button" class="nav-link sidebar-menu-toggle" data-menu="ventes" aria-expanded="false">
+                    <span class="sidebar-menu-content">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span class="sidebar-label">Ventes</span>
+                    </span>
+                    <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
+                </button>
+
+                <div class="sidebar-submenu {{ request()->routeIs('sales.*') ? 'open' : '' }}" id="ventes">
+                    <div class="sidebar-submenu-title">Ventes</div>
+
+                    <a href="{{ route('sales.create') }}"
+                       class="nav-link sidebar-submenu-link {{ request()->routeIs('sales.create') ? 'active' : '' }}">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Nouvelle vente</span>
+                    </a>
+
+                    <a href="{{ route('sales.index') }}"
+                       class="nav-link sidebar-submenu-link {{ request()->routeIs('sales.index') ? 'active' : '' }}">
+                        <i class="fa-solid fa-list"></i>
+                        <span>Liste des ventes</span>
+                    </a>
+
+                    <a href="{{ $sale ?? '#' }}"
+                       class="nav-link sidebar-submenu-link {{ request()->routeIs('sales.show') ? 'active' : '' }}">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <span>Détail d'une vente</span>
+                    </a>
+
+                    <a href="{{ route('sales.returns.index') }}"
+                       class="nav-link sidebar-submenu-link {{ request()->routeIs('sales.returns.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Retours</span>
+                    </a>
+                </div>
+            </div>
+
+          
+<!-- TARIFICATION : lien direct, sans sous-menu -->
+<a
+    href="{{ route('tarification.index') }}"
+    title="Tarification"
+    class="nav-link sidebar-main-link {{ request()->routeIs('tarification.*') ? 'active' : '' }}"
+>
+    <span class="sidebar-menu-content">
+        <i class="fa-solid fa-tags"></i>
+        <span class="sidebar-label">Tarification</span>
+    </span>
+</a>
+
+
+
             <!-- CATALOGUE -->
             <div class="sidebar-menu-group">
                 <button type="button" class="nav-link sidebar-menu-toggle" data-menu="catalogue" aria-expanded="false">
@@ -154,58 +208,6 @@
             </div>
 
 
-            <!-- VENTES -->
-            <div class="sidebar-menu-group">
-                <button type="button" class="nav-link sidebar-menu-toggle" data-menu="ventes" aria-expanded="false">
-                    <span class="sidebar-menu-content">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span class="sidebar-label">Ventes</span>
-                    </span>
-                    <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
-                </button>
-
-                <div class="sidebar-submenu {{ request()->routeIs('sales.*') ? 'open' : '' }}" id="ventes">
-                    <div class="sidebar-submenu-title">Ventes</div>
-
-                    <a href="{{ route('sales.create') }}"
-                       class="nav-link sidebar-submenu-link {{ request()->routeIs('sales.create') ? 'active' : '' }}">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Nouvelle vente</span>
-                    </a>
-
-                    <a href="{{ route('sales.index') }}"
-                       class="nav-link sidebar-submenu-link {{ request()->routeIs('sales.index') ? 'active' : '' }}">
-                        <i class="fa-solid fa-list"></i>
-                        <span>Liste des ventes</span>
-                    </a>
-
-                    <a href="{{ $sale ?? '#' }}"
-                       class="nav-link sidebar-submenu-link {{ request()->routeIs('sales.show') ? 'active' : '' }}">
-                        <i class="fa-solid fa-file-lines"></i>
-                        <span>Détail d'une vente</span>
-                    </a>
-
-                    <a href="{{ route('sales.returns.index') }}"
-                       class="nav-link sidebar-submenu-link {{ request()->routeIs('sales.returns.*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-rotate-left"></i>
-                        <span>Retours</span>
-                    </a>
-                </div>
-            </div>
-
-
-          
-<!-- TARIFICATION : lien direct, sans sous-menu -->
-<a
-    href="{{ route('tarification.index') }}"
-    title="Tarification"
-    class="nav-link sidebar-main-link {{ request()->routeIs('tarification.*') ? 'active' : '' }}"
->
-    <span class="sidebar-menu-content">
-        <i class="fa-solid fa-tags"></i>
-        <span class="sidebar-label">Tarification</span>
-    </span>
-</a>
 
 
         </nav>
