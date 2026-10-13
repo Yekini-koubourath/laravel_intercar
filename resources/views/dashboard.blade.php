@@ -104,7 +104,7 @@
            OVERLAY MOBILE
         ========================================================== */
 
-        .sidebar-overlay {
+        /* .sidebar-overlay {
             display: none;
             position: fixed;
             inset: 0;
@@ -116,7 +116,7 @@
         .sidebar-overlay.show {
             display: block;
         }
-
+*/
 
         /* =========================================================
            MAIN CONTENT
@@ -419,6 +419,13 @@
             }
 
         }
+        @media (max-width: 575.98px) {
+    .main-wrapper .btn-purple {
+        max-width: 100%;
+        white-space: normal;
+        text-align: center;
+    }
+}
 
     </style>
 @include('auth.partials.sidebar-layout')
@@ -553,7 +560,7 @@
              TITRE
         ====================================================== -->
 
-<div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
 
     <!-- GAUCHE : Icône et titre -->
     <div class="d-flex align-items-center gap-3">
