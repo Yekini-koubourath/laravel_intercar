@@ -607,268 +607,202 @@
              4 KPI
         ====================================================== -->
 
-        <div class="row g-3 mb-4">
+<div class="row g-3 mb-4">
 
+    <!-- CHIFFRE D'AFFAIRES -->
 
-            <!-- CA -->
+    <div class="col-12 col-sm-6 col-xl-3">
 
-            <div class="col-12 col-sm-6 col-xl-3">
+        <a href="{{ route('sales.index') }}"
+           class="card-kpi h-100 d-block text-decoration-none text-reset">
 
-                <div class="card-kpi h-100">
+            <div class="kpi-icon kpi-icon-purple mb-3">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
 
-                    <div class="kpi-icon kpi-icon-purple mb-3">
+            <p class="text-muted small mb-1 fw-medium">
+                Chiffre d'affaires
+            </p>
 
-                        <i class="fa-solid fa-wallet"></i>
+            <h4 class="fw-bold mb-2" style="color: #111827;">
+                {{ number_format($currentRevenue, 0, ',', ' ') }} FCFA
+            </h4>
 
-                    </div>
+            <div class="d-flex align-items-center gap-1"
+                 style="font-size: 0.75rem;">
 
+                @if($previousRevenue == 0 && $currentRevenue > 0)
 
-                    <p class="text-muted small mb-1 fw-medium">
+                    <span class="variation-neutral fw-semibold">
+                        <i class="fa-solid fa-sparkles"></i>
+                        Nouveau
+                    </span>
 
-                        Chiffre d'affaires
+                @elseif($revenueVariation > 0)
 
-                    </p>
+                    <span class="variation-positive fw-semibold">
+                        <i class="fa-solid fa-arrow-up"></i>
+                        +{{ number_format($revenueVariation, 1, ',', ' ') }}%
+                    </span>
 
+                @elseif($revenueVariation < 0)
 
-                    <h4 class="fw-bold mb-2"
-                        style="color: #111827;">
+                    <span class="variation-negative fw-semibold">
+                        <i class="fa-solid fa-arrow-down"></i>
+                        {{ number_format($revenueVariation, 1, ',', ' ') }}%
+                    </span>
 
-                        {{ number_format($currentRevenue, 0, ',', ' ') }}
-                        FCFA
+                @else
 
-                    </h4>
+                    <span class="variation-neutral fw-semibold">
+                        <i class="fa-solid fa-minus"></i>
+                        0%
+                    </span>
 
+                @endif
 
-                    <div class="d-flex align-items-center gap-1"
-                         style="font-size: 0.75rem;">
-
-                        @if($previousRevenue == 0 && $currentRevenue > 0)
-
-                            <span class="variation-neutral fw-semibold">
-
-                                <i class="fa-solid fa-sparkles"></i>
-                                Nouveau
-
-                            </span>
-
-                        @elseif($revenueVariation > 0)
-
-                            <span class="variation-positive fw-semibold">
-
-                                <i class="fa-solid fa-arrow-up"></i>
-                                +{{ number_format($revenueVariation, 1, ',', ' ') }}%
-
-                            </span>
-
-                        @elseif($revenueVariation < 0)
-
-                            <span class="variation-negative fw-semibold">
-
-                                <i class="fa-solid fa-arrow-down"></i>
-                                {{ number_format($revenueVariation, 1, ',', ' ') }}%
-
-                            </span>
-
-                        @else
-
-                            <span class="variation-neutral fw-semibold">
-
-                                <i class="fa-solid fa-minus"></i>
-                                0%
-
-                            </span>
-
-                        @endif
-
-
-                        <span class="text-muted">
-
-                            par rapport à la période précédente
-
-                        </span>
-
-                    </div>
-
-                </div>
+                <span class="text-muted">
+                    par rapport à la période précédente
+                </span>
 
             </div>
 
+        </a>
 
-            <!-- MARGES -->
-
-            <div class="col-12 col-sm-6 col-xl-3">
-
-                <div class="card-kpi h-100">
-
-                    <div class="kpi-icon kpi-icon-orange mb-3">
-
-                        <i class="fa-solid fa-chart-line"></i>
-
-                    </div>
+    </div>
 
 
-                    <p class="text-muted small mb-1 fw-medium">
+    <!-- MARGES RÉALISÉES -->
 
-                        Marges réalisées
+    <div class="col-12 col-sm-6 col-xl-3">
 
-                    </p>
+        <a href="{{ route('tarification.index') }}"
+           class="card-kpi h-100 d-block text-decoration-none text-reset">
 
+            <div class="kpi-icon kpi-icon-orange mb-3">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
 
-                    <h4 class="fw-bold mb-2"
-                        style="color: #111827;">
+            <p class="text-muted small mb-1 fw-medium">
+                Marges réalisées
+            </p>
 
-                        {{ number_format($currentMargin, 0, ',', ' ') }}
-                        FCFA
+            <h4 class="fw-bold mb-2" style="color: #111827;">
+                {{ number_format($currentMargin, 0, ',', ' ') }} FCFA
+            </h4>
 
-                    </h4>
+            <div class="d-flex align-items-center gap-1"
+                 style="font-size: 0.75rem;">
 
+                @if($previousMargin == 0 && $currentMargin > 0)
 
-                    <div class="d-flex align-items-center gap-1"
-                         style="font-size: 0.75rem;">
+                    <span class="variation-neutral fw-semibold">
+                        <i class="fa-solid fa-sparkles"></i>
+                        Nouveau
+                    </span>
 
-                        @if($previousMargin == 0 && $currentMargin > 0)
+                @elseif($marginVariation > 0)
 
-                            <span class="variation-neutral fw-semibold">
+                    <span class="variation-positive fw-semibold">
+                        <i class="fa-solid fa-arrow-up"></i>
+                        +{{ number_format($marginVariation, 1, ',', ' ') }}%
+                    </span>
 
-                                <i class="fa-solid fa-sparkles"></i>
-                                Nouveau
+                @elseif($marginVariation < 0)
 
-                            </span>
+                    <span class="variation-negative fw-semibold">
+                        <i class="fa-solid fa-arrow-down"></i>
+                        {{ number_format($marginVariation, 1, ',', ' ') }}%
+                    </span>
 
-                        @elseif($marginVariation > 0)
+                @else
 
-                            <span class="variation-positive fw-semibold">
+                    <span class="variation-neutral fw-semibold">
+                        <i class="fa-solid fa-minus"></i>
+                        0%
+                    </span>
 
-                                <i class="fa-solid fa-arrow-up"></i>
-                                +{{ number_format($marginVariation, 1, ',', ' ') }}%
+                @endif
 
-                            </span>
-
-                        @elseif($marginVariation < 0)
-
-                            <span class="variation-negative fw-semibold">
-
-                                <i class="fa-solid fa-arrow-down"></i>
-                                {{ number_format($marginVariation, 1, ',', ' ') }}%
-
-                            </span>
-
-                        @else
-
-                            <span class="variation-neutral fw-semibold">
-
-                                <i class="fa-solid fa-minus"></i>
-                                0%
-
-                            </span>
-
-                        @endif
-
-
-                        <span class="text-muted">
-
-                            par rapport à la période précédente
-
-                        </span>
-
-                    </div>
-
-                </div>
+                <span class="text-muted">
+                    par rapport à la période précédente
+                </span>
 
             </div>
 
+        </a>
 
-            <!-- STOCK -->
-
-            <div class="col-12 col-sm-6 col-xl-3">
-
-                <div class="card-kpi h-100">
-
-                    <div class="kpi-icon kpi-icon-purple-alt mb-3">
-
-                        <i class="fa-solid fa-box"></i>
-
-                    </div>
+    </div>
 
 
-                    <p class="text-muted small mb-1 fw-medium">
+    <!-- PRODUITS EN STOCK -->
 
-                        Produits en stock
+    <div class="col-12 col-sm-6 col-xl-3">
 
-                    </p>
+        <a href="{{ route('stock.index') }}"
+           class="card-kpi h-100 d-block text-decoration-none text-reset">
 
+            <div class="kpi-icon kpi-icon-purple-alt mb-3">
+                <i class="fa-solid fa-box"></i>
+            </div>
 
-                    <h4 class="fw-bold mb-2"
-                        style="color: #111827;">
+            <p class="text-muted small mb-1 fw-medium">
+                Produits en stock
+            </p>
 
-                        {{ number_format($totalStock, 0, ',', ' ') }}
+            <h4 class="fw-bold mb-2" style="color: #111827;">
+                {{ number_format($totalStock, 0, ',', ' ') }}
+            </h4>
 
-                    </h4>
+            <div class="d-flex align-items-center gap-1"
+                 style="font-size: 0.75rem;">
 
-
-                    <div class="d-flex align-items-center gap-1"
-                         style="font-size: 0.75rem;">
-
-                        <span class="text-muted">
-
-                            Quantité totale disponible
-
-                        </span>
-
-                    </div>
-
-                </div>
+                <span class="text-muted">
+                    Quantité totale disponible
+                </span>
 
             </div>
 
+        </a>
 
-            <!-- ALERTES -->
-
-            <div class="col-12 col-sm-6 col-xl-3">
-
-                <div class="card-kpi h-100">
-
-                    <div class="kpi-icon kpi-icon-red mb-3">
-
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-
-                    </div>
+    </div>
 
 
-                    <p class="text-muted small mb-1 fw-medium">
+    <!-- ALERTES STOCK -->
 
-                        Alertes stock
+    <div class="col-12 col-sm-6 col-xl-3">
 
-                    </p>
+        <a href="{{ route('stock.index') }}"
+           class="card-kpi h-100 d-block text-decoration-none text-reset">
 
+            <div class="kpi-icon kpi-icon-red mb-3">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
 
-                    <h4 class="fw-bold mb-2"
-                        style="color: #111827;">
+            <p class="text-muted small mb-1 fw-medium">
+                Alertes stock
+            </p>
 
-                        {{ number_format($stockAlerts, 0, ',', ' ') }}
+            <h4 class="fw-bold mb-2" style="color: #111827;">
+                {{ number_format($stockAlerts, 0, ',', ' ') }}
+            </h4>
 
-                    </h4>
+            <div class="text-danger d-flex align-items-center gap-1"
+                 style="font-size: 0.75rem;">
 
+                <i class="fa-solid fa-circle-exclamation"></i>
 
-                    <div class="text-danger d-flex align-items-center gap-1"
-                         style="font-size: 0.75rem;">
-
-                        <i class="fa-solid fa-circle-exclamation"></i>
-
-                        <span>
-
-                            Produits en rupture ou sous le seuil
-
-                        </span>
-
-                    </div>
-
-                </div>
+                <span>
+                    Produits en rupture ou sous le seuil
+                </span>
 
             </div>
 
-        </div>
+        </a>
 
+    </div>
+
+</div>
 
         <!-- =====================================================
              GRAPHIQUES
