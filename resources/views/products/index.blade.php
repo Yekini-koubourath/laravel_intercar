@@ -87,9 +87,7 @@ body{
   max-width:480px;
 }
 
-.search-box input{
-  min-width:0;
-}
+.search-box input{ min-width:0; }
 
 .search-box input::placeholder{
   color:#A0AEC0;
@@ -132,6 +130,9 @@ body{
   box-shadow:0 14px 30px rgba(48,23,61,.12);
 }
 
+.product-card.is-low{ border-color:#FCD9A3; }
+.product-card.is-out{ border-color:#F8C4C4; }
+
 
 /* ----- Photo ----- */
 
@@ -150,9 +151,7 @@ body{
   transition:transform .4s ease;
 }
 
-.product-card:hover .product-card-media img{
-  transform:scale(1.05);
-}
+.product-card:hover .product-card-media img{ transform:scale(1.05); }
 
 .product-card-placeholder{
   width:100%;
@@ -171,7 +170,7 @@ body{
   display:flex;
   gap:6px;
   flex-wrap:wrap;
-  max-width:calc(100% - 70px);
+  max-width:calc(100% - 20px);
 }
 
 .product-badge-top .badge{
@@ -193,21 +192,26 @@ body{
   backdrop-filter:blur(4px);
 }
 
-.product-status-dot{
+/* ----- Alerte de seuil sur la photo ----- */
+
+.product-alert{
   position:absolute;
-  top:10px;
-  right:10px;
-  font-size:.68rem;
-  font-weight:600;
-  padding:.3rem .6rem;
+  left:10px;
+  bottom:10px;
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  max-width:calc(100% - 80px);
+  font-size:.7rem;
+  font-weight:700;
+  color:#fff;
+  padding:.32rem .65rem;
   border-radius:999px;
-  background:#fff;
-  box-shadow:0 2px 6px rgba(0,0,0,.12);
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
 
-.product-status-dot.actif{ color:#198754; }
-.product-status-dot.inactif{ color:#6c757d; }
-.product-status-dot.brouillon{ color:#997404; }
+.product-alert.low{ background:#F59E0B; }
+.product-alert.out{ background:#DC2626; }
 
 
 /* ----- Corps ----- */
@@ -313,9 +317,7 @@ body{
   text-overflow:ellipsis;
 }
 
-.price-box.sell .price-value{
-  color:var(--purple-btn);
-}
+.price-box.sell .price-value{ color:var(--purple-btn); }
 
 .price-value small{
   font-size:.65rem;
@@ -338,10 +340,7 @@ body{
   margin-bottom:.8rem;
 }
 
-.product-card-actions{
-  display:flex;
-  gap:.5rem;
-}
+.product-card-actions{ display:flex; }
 
 .btn-details{
   flex:1 1 auto;
@@ -354,7 +353,7 @@ body{
   border:none;
   font-size:.8rem;
   font-weight:600;
-  padding:.55rem .8rem;
+  padding:.6rem .8rem;
   border-radius:9px;
   transition:background .2s ease, transform .15s ease;
 }
@@ -365,30 +364,7 @@ body{
   color:#fff;
 }
 
-.btn-details:active{
-  transform:scale(.98);
-}
-
-.btn-icon-soft{
-  width:38px;
-  flex-shrink:0;
-  background:#fff;
-  border:1px solid #E2E8F0;
-  border-radius:9px;
-  color:#6B7280;
-  transition:all .2s ease;
-}
-
-.btn-icon-soft:hover{
-  background:#F6F4FB;
-  color:var(--purple-btn);
-}
-
-.btn-icon-soft.danger:hover{
-  background:#FEF2F2;
-  color:#DC2626;
-  border-color:#FECACA;
-}
+.btn-details:active{ transform:scale(.98); }
 
 
 /* ----- Etat vide ----- */
@@ -787,24 +763,18 @@ textarea.form-control{ min-height:110px; }
 .summary-label{ color:#777b87; }
 .summary-value{ font-weight:600; text-align:right; word-break:break-word; }
 
-
-/* =========================================================
-   STOCK / STATUT
-========================================================= */
-
-.stock-box{
-  background:#fafafd;
-  border:1px solid #e7e8ee;
-  border-radius:10px;
-  padding:15px;
+.next-step{
+  display:flex;
+  gap:.75rem;
+  align-items:flex-start;
+  font-size:.84rem;
+  color:#5b5368;
 }
 
-.status-badge{
-  background:#e9f7ef;
-  color:#198754;
-  font-size:.78rem;
-  padding:5px 9px;
-  border-radius:20px;
+.next-step i{
+  color:var(--purple-main);
+  font-size:1.1rem;
+  margin-top:2px;
 }
 
 
@@ -894,7 +864,7 @@ textarea.form-control{ min-height:110px; }
 @php
     /*
     |------------------------------------------------------------------
-    | LIBELLES (utilisés par les cartes et par la fiche détail en JS)
+    | LIBELLES
     |------------------------------------------------------------------
     */
     $labels = [
@@ -924,12 +894,6 @@ textarea.form-control{ min-height:110px; }
         'unit' => [
             'piece' => 'Pièce', 'kit' => 'Kit', 'lot' => 'Lot', 'paire' => 'Paire',
         ],
-        'status' => [
-            'actif' => 'Actif', 'inactif' => 'Inactif', 'brouillon' => 'Brouillon',
-        ],
-        'location' => [
-            'boutique_principale' => 'Boutique principale',
-        ],
     ];
 
     /*
@@ -946,12 +910,10 @@ textarea.form-control{ min-height:110px; }
             'brand'                  => $p->brand,
             'category'               => $p->category,
             'description'            => $p->description,
-            'status'                 => $p->status,
             'selling_price'          => (float) $p->selling_price,
             'purchase_price'         => $p->purchase_price !== null ? (float) $p->purchase_price : null,
             'quantity'               => (int) $p->quantity,
             'stock_minimum'          => (int) $p->stock_minimum,
-            'location'               => $p->location,
             'images'                 => $p->images
                 ->map(fn ($img) => route('product.image', ['path' => $img->path]))
                 ->values(),
@@ -975,6 +937,11 @@ textarea.form-control{ min-height:110px; }
             'unit'                   => $p->unit,
         ];
     })->values();
+
+    /* Produits ayant atteint le seuil d'alerte (rupture comprise) */
+    $alertCount = $products
+        ->filter(fn ($p) => (int) $p->quantity <= (int) $p->stock_minimum)
+        ->count();
 @endphp
 
 
@@ -1040,7 +1007,9 @@ textarea.form-control{ min-height:110px; }
 
         <i class="fa-regular fa-bell text-secondary"></i>
 
-        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+        @if($alertCount > 0)
+          <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+        @endif
 
       </button>
 
@@ -1102,11 +1071,27 @@ textarea.form-control{ min-height:110px; }
   </div>
 
 
+  <!-- ALERTE DE SEUIL -->
+
+  @if($alertCount > 0)
+    <div class="alert alert-warning d-flex align-items-center flex-wrap gap-2 mb-4" role="alert">
+      <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+      <div>
+        <strong>{{ $alertCount }} produit{{ $alertCount > 1 ? 's ont' : ' a' }}</strong>
+        atteint le seuil d'alerte ou {{ $alertCount > 1 ? 'sont' : 'est' }} en rupture.
+      </div>
+      <a href="{{ route('stock.index') }}" class="btn btn-sm btn-outline-dark ms-auto">
+        Voir le stock
+      </a>
+    </div>
+  @endif
+
+
   <!-- STATISTIQUES -->
 
   <div class="row g-3 mb-4">
 
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-sm-6 col-xl-3">
       <div class="card-custom h-100">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -1120,7 +1105,7 @@ textarea.form-control{ min-height:110px; }
       </div>
     </div>
 
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-sm-6 col-xl-3">
       <div class="card-custom h-100">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -1134,7 +1119,7 @@ textarea.form-control{ min-height:110px; }
       </div>
     </div>
 
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-sm-6 col-xl-3">
       <div class="card-custom h-100">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -1143,6 +1128,20 @@ textarea.form-control{ min-height:110px; }
           </div>
           <div class="rounded-circle bg-light p-3">
             <i class="fa-solid fa-car fs-4 text-success"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card-custom h-100">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <p class="text-muted mb-1">Alertes de stock</p>
+            <h3 class="fw-bold mb-0 {{ $alertCount > 0 ? 'text-danger' : '' }}">{{ $alertCount }}</h3>
+          </div>
+          <div class="rounded-circle bg-light p-3">
+            <i class="fa-solid fa-triangle-exclamation fs-4 text-danger"></i>
           </div>
         </div>
       </div>
@@ -1182,11 +1181,11 @@ textarea.form-control{ min-height:110px; }
       </div>
 
       <div class="col-12 col-md-3">
-        <select class="form-select" id="filterStatus">
-          <option value="">Tous les statuts</option>
-          <option value="actif">Actif</option>
-          <option value="inactif">Inactif</option>
-          <option value="brouillon">Brouillon</option>
+        <select class="form-select" id="filterStock">
+          <option value="">Tous les stocks</option>
+          <option value="ok">En stock</option>
+          <option value="low">Seuil atteint</option>
+          <option value="out">Rupture</option>
         </select>
       </div>
 
@@ -1230,16 +1229,20 @@ textarea.form-control{ min-height:110px; }
                   $product->compatibility,
               ])));
 
-              $qty      = (int) $product->quantity;
-              $lowStock = $qty > 0 && $qty <= (int) $product->stock_minimum && ! $isVehicle;
+              $qty  = (int) $product->quantity;
+              $min  = (int) $product->stock_minimum;
+              $state = $qty <= 0 ? 'out' : ($qty <= $min ? 'low' : 'ok');
+
+              $cost = (float) ($product->purchase_price ?? 0);
+              $sale = (float) ($product->selling_price ?? 0);
           @endphp
 
           <div class="col-12 col-sm-6 col-xl-4 col-xxl-3 product-col"
                data-type="{{ $product->type }}"
-               data-status="{{ $product->status }}"
+               data-stock="{{ $state }}"
                data-search="{{ $searchText }}">
 
-            <article class="product-card">
+            <article class="product-card {{ $state === 'low' ? 'is-low' : ($state === 'out' ? 'is-out' : '') }}">
 
               <!-- PHOTO -->
               <div class="product-card-media">
@@ -1270,9 +1273,15 @@ textarea.form-control{ min-height:110px; }
                   @endif
                 </div>
 
-                <span class="product-status-dot {{ $product->status }}">
-                  {{ $labels['status'][$product->status] ?? $product->status }}
-                </span>
+                @if($state === 'out')
+                  <span class="product-alert out">
+                    <i class="fa-solid fa-circle-exclamation"></i>Rupture de stock
+                  </span>
+                @elseif($state === 'low')
+                  <span class="product-alert low">
+                    <i class="fa-solid fa-triangle-exclamation"></i>Seuil atteint ({{ $min }})
+                  </span>
+                @endif
 
                 @if($photoCnt > 1)
                   <span class="product-photo-count">
@@ -1337,24 +1346,18 @@ textarea.form-control{ min-height:110px; }
                       </span>
                     @endif
 
-                    @if($product->unit)
-                      <span class="spec-chip">
-                        <i class="fa-solid fa-cubes"></i>{{ $labels['unit'][$product->unit] ?? $product->unit }}
-                      </span>
-                    @endif
-
                   @endif
 
                 </div>
 
-                <!-- Prix -->
+                <!-- Prix (viennent de Tarification) -->
                 <div class="product-prices">
 
                   <div class="price-box">
-                    <div class="price-label">Prix d'achat unitaire</div>
+                    <div class="price-label">Prix de revient unitaire</div>
                     <div class="price-value">
-                      @if($product->purchase_price !== null && $product->purchase_price > 0)
-                        {{ number_format($product->purchase_price, 0, ',', ' ') }} <small>FCFA</small>
+                      @if($cost > 0)
+                        {{ number_format($cost, 0, ',', ' ') }} <small>FCFA</small>
                       @else
                         —
                       @endif
@@ -1364,46 +1367,40 @@ textarea.form-control{ min-height:110px; }
                   <div class="price-box sell">
                     <div class="price-label">Prix de vente</div>
                     <div class="price-value">
-                      {{ number_format($product->selling_price, 0, ',', ' ') }} <small>FCFA</small>
+                      @if($sale > 0)
+                        {{ number_format($sale, 0, ',', ' ') }} <small>FCFA</small>
+                      @else
+                        —
+                      @endif
                     </div>
                   </div>
 
                 </div>
 
-                <!-- Stock -->
+                <!-- Quantité -->
                 <div class="product-stock-line">
                   <span>
                     <i class="fa-solid fa-boxes-stacked me-1 text-muted"></i>
-                    Stock : <strong>{{ $qty }}</strong>
+                    Quantité : <strong>{{ $qty }}</strong>
                   </span>
 
-                  @if($qty <= 0)
+                  @if($state === 'out')
                     <span class="badge bg-danger">Rupture</span>
-                  @elseif($lowStock)
-                    <span class="badge bg-warning text-dark">Stock faible</span>
+                  @elseif($state === 'low')
+                    <span class="badge bg-warning text-dark">Seuil atteint</span>
                   @else
                     <span class="badge bg-success">En stock</span>
                   @endif
                 </div>
 
-                <!-- Actions -->
+                <!-- Action -->
                 <div class="product-card-actions">
-
                   <button type="button"
                           class="btn-details btn-view-details"
                           data-id="{{ $product->id }}">
                     <i class="fa-regular fa-eye"></i>
                     Voir les détails
                   </button>
-
-                  <button type="button" class="btn-icon-soft" title="Modifier">
-                    <i class="fa-solid fa-pen"></i>
-                  </button>
-
-                  <button type="button" class="btn-icon-soft danger" title="Supprimer">
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-
                 </div>
 
               </div>
@@ -1465,6 +1462,9 @@ textarea.form-control{ min-height:110px; }
       </div>
 
       <div class="modal-footer bg-white">
+        <a href="{{ route('stock.index') }}" class="btn btn-light border me-auto">
+          <i class="fa-solid fa-boxes-stacked me-1"></i>Voir le stock
+        </a>
         <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Fermer</button>
       </div>
 
@@ -1503,8 +1503,6 @@ textarea.form-control{ min-height:110px; }
             enctype="multipart/form-data">
 
         @csrf
-
-        <input type="hidden" name="stock_minimum" value="0">
 
         <div class="modal-body">
 
@@ -1552,6 +1550,28 @@ textarea.form-control{ min-height:110px; }
               </div>
 
 
+              <!-- PHOTOS -->
+
+              <div class="card mb-4">
+                <div class="card-header">Photos du produit</div>
+                <div class="card-body">
+
+                  <label class="upload-zone w-100" for="productImages">
+                    <div class="upload-icon mb-2"><i class="bi bi-cloud-arrow-up"></i></div>
+                    <div class="fw-semibold" id="photoUploadTitle">Ajouter des photos</div>
+                    <div class="text-muted small mt-1">Vous pouvez sélectionner plusieurs images</div>
+                    <div class="text-muted small">JPG, PNG ou WEBP — 5 Mo maximum par image</div>
+                  </label>
+
+                  <input type="file" id="productImages" name="images[]" class="d-none" multiple
+                         accept="image/jpeg,image/png,image/webp">
+
+                  <div id="imagePreview" class="row g-3 mt-3 d-none"></div>
+
+                </div>
+              </div>
+
+
               <!-- INFORMATIONS GENERALES -->
 
               <div class="card mb-4">
@@ -1581,20 +1601,6 @@ textarea.form-control{ min-height:110px; }
                         <option value="Peugeot">Peugeot</option>
                         <option value="Renault">Renault</option>
                         <option value="Honda">Honda</option>
-                      </select>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Catégorie <span class="required">*</span></label>
-                      <select class="form-select" name="category" id="category" required>
-                        <option value="">Sélectionner une catégorie</option>
-                        <option value="Berline">Berline</option>
-                        <option value="SUV">SUV</option>
-                        <option value="Utilitaire">Utilitaire</option>
-                        <option value="Moto">Moto</option>
-                        <option value="Moteur">Moteur</option>
-                        <option value="Freinage">Freinage</option>
-                        <option value="Électricité">Électricité</option>
                       </select>
                     </div>
 
@@ -1791,117 +1797,12 @@ textarea.form-control{ min-height:110px; }
                 </div>
               </div>
 
-
-              <!-- PHOTOS -->
-
-              <div class="card mb-4">
-                <div class="card-header">Photos du produit</div>
-                <div class="card-body">
-
-                  <label class="upload-zone w-100" for="productImages">
-                    <div class="upload-icon mb-2"><i class="bi bi-cloud-arrow-up"></i></div>
-                    <div class="fw-semibold" id="photoUploadTitle">Ajouter des photos</div>
-                    <div class="text-muted small mt-1">Vous pouvez sélectionner plusieurs images</div>
-                    <div class="text-muted small">JPG, PNG ou WEBP — 5 Mo maximum par image</div>
-                  </label>
-
-                  <input type="file" id="productImages" name="images[]" class="d-none" multiple
-                         accept="image/jpeg,image/png,image/webp">
-
-                  <div id="imagePreview" class="row g-3 mt-3 d-none"></div>
-
-                </div>
-              </div>
-
             </div>
 
 
             <!-- COLONNE DROITE -->
 
             <div class="col-lg-4">
-
-              <!-- PRIX ET STOCK -->
-
-              <div class="card mb-4">
-                <div class="card-header">Prix et stock</div>
-                <div class="card-body">
-
-                  <div class="mb-3">
-                    <label class="form-label">Prix de vente <span class="required">*</span></label>
-                    <div class="input-group">
-                      <input type="number" class="form-control" name="selling_price" id="productPrice"
-                             min="0" step="1" placeholder="0" required>
-                      <span class="input-group-text">FCFA</span>
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">Prix d'achat unitaire</label>
-                    <div class="input-group">
-                      <input type="number" class="form-control" name="purchase_price"
-                             min="0" step="1" placeholder="0">
-                      <span class="input-group-text">FCFA</span>
-                    </div>
-                  </div>
-
-                  <hr>
-
-                  <div class="stock-box">
-
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <div>
-                        <div class="fw-semibold">Gestion du stock</div>
-                        <div class="text-muted small">Facultatif pour le moment</div>
-                      </div>
-                      <i class="bi bi-box-seam fs-4 text-primary"></i>
-                    </div>
-
-                    <div class="mb-3">
-                      <label class="form-label">Quantité initiale</label>
-                      <input type="number" class="form-control" name="quantity" id="productQuantity"
-                             value="0" min="0">
-                    </div>
-
-                    <div>
-                      <label class="form-label">Emplacement</label>
-                      <select class="form-select" name="location" id="productLocation">
-                        <option value="">Aucun emplacement spécifié</option>
-                        <option value="boutique_principale">Boutique principale</option>
-                      </select>
-                      <div class="form-text">
-                        Vous pourrez ajouter d'autres magasins ou entrepôts ultérieurement.
-                      </div>
-                    </div>
-
-                  </div>
-
-                </div>
-              </div>
-
-
-              <!-- PUBLICATION -->
-
-              <div class="card mb-4">
-                <div class="card-header">Publication</div>
-                <div class="card-body">
-
-                  <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                      <div class="fw-semibold">Statut</div>
-                      <div class="text-muted small">Visibilité du produit</div>
-                    </div>
-                    <span id="statusBadge" class="status-badge">Actif</span>
-                  </div>
-
-                  <select class="form-select" name="status" id="productStatus">
-                    <option value="actif">Actif</option>
-                    <option value="inactif">Inactif</option>
-                    <option value="brouillon">Brouillon</option>
-                  </select>
-
-                </div>
-              </div>
-
 
               <!-- RESUME -->
 
@@ -1924,16 +1825,21 @@ textarea.form-control{ min-height:110px; }
                     <span class="summary-value" id="summaryReference">—</span>
                   </div>
 
-                  <div class="summary-item">
-                    <span class="summary-label">Prix</span>
-                    <span class="summary-value" id="summaryPrice">—</span>
-                  </div>
+                </div>
+              </div>
 
-                  <div class="summary-item">
-                    <span class="summary-label">Stock</span>
-                    <span class="summary-value" id="summaryQuantity">0</span>
-                  </div>
+              <!-- PROCHAINE ETAPE -->
 
+              <div class="card mb-4">
+                <div class="card-body">
+                  <div class="next-step">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <div>
+                      Le prix et le stock ne se saisissent pas ici. Après la création,
+                      ouvrez <strong>Tarification</strong> pour enregistrer la quantité,
+                      le prix d'achat, les frais et le prix de vente.
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1949,11 +1855,6 @@ textarea.form-control{ min-height:110px; }
         <div class="modal-footer">
 
           <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Annuler</button>
-
-          <button type="button" class="btn btn-outline-primary" id="saveDraftBtn">
-            <i class="bi bi-save me-1"></i>
-            Enregistrer brouillon
-          </button>
 
           <button type="submit" class="btn btn-primary px-4">
             <i class="bi bi-check-lg me-1"></i>
@@ -1991,7 +1892,7 @@ document.addEventListener('DOMContentLoaded', function(){
       const element = $(id);
       if(element){ element.remove(); }
     });
-  }, 3000);
+  }, 4000);
 
 
   /* =========================================================
@@ -2087,14 +1988,11 @@ document.addEventListener('DOMContentLoaded', function(){
   function renderInfo(p){
 
     const isVehicle = p.type === 'vehicule';
+    const cost      = p.purchase_price !== null ? p.purchase_price : 0;
+    const priced    = cost > 0 && p.selling_price > 0;
 
-    const margin = (p.purchase_price !== null && p.purchase_price > 0)
-      ? p.selling_price - p.purchase_price
-      : null;
-
-    const marginPct = (margin !== null)
-      ? (margin / p.purchase_price * 100)
-      : null;
+    const margin    = priced ? p.selling_price - cost : null;
+    const marginPct = priced ? (margin / cost * 100) : null;
 
     let html = '';
 
@@ -2102,8 +2000,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
     html += block('Prix',
       '<div class="detail-price-grid">' +
-        '<div class="price-box"><div class="price-label">Prix d\'achat unitaire</div>' +
-          '<div class="price-value">' + money(p.purchase_price) + '</div></div>' +
+        '<div class="price-box"><div class="price-label">Prix de revient unitaire</div>' +
+          '<div class="price-value">' + money(cost) + '</div></div>' +
         '<div class="price-box sell"><div class="price-label">Prix de vente</div>' +
           '<div class="price-value">' + money(p.selling_price) + '</div></div>' +
         '<div class="price-box"><div class="price-label">Marge unitaire</div>' +
@@ -2116,13 +2014,30 @@ document.addEventListener('DOMContentLoaded', function(){
       '</div>'
     );
 
+    /* ----- Stock ----- */
+
+    let stateHtml;
+
+    if(p.quantity <= 0){
+      stateHtml = '<span class="badge bg-danger">Rupture de stock</span>';
+    } else if(p.quantity <= p.stock_minimum){
+      stateHtml = '<span class="badge bg-warning text-dark">Seuil atteint</span>';
+    } else {
+      stateHtml = '<span class="badge bg-success">En stock</span>';
+    }
+
+    html += block('Stock',
+      line('Quantité en stock', '<strong>' + esc(p.quantity) + '</strong>') +
+      line('Seuil d\'alerte', esc(p.stock_minimum)) +
+      line('État', stateHtml)
+    );
+
     /* ----- Informations générales ----- */
 
     html += block('Informations générales',
       line('Type', isVehicle ? 'Véhicule' : 'Pièce détachée') +
       line('Marque', esc(p.brand || p.piece_brand)) +
-      line('Catégorie', esc(p.category)) +
-      line('Statut', esc(label('status', p.status)))
+      line('Catégorie', esc(p.category))
     );
 
     /* ----- Spécificités ----- */
@@ -2154,14 +2069,6 @@ document.addEventListener('DOMContentLoaded', function(){
         line('Compatibilité', esc(p.compatibility))
       );
     }
-
-    /* ----- Stock ----- */
-
-    html += block('Stock',
-      line('Quantité en stock', '<strong>' + esc(p.quantity) + '</strong>') +
-      line('Seuil minimum', esc(p.stock_minimum)) +
-      line('Emplacement', esc(label('location', p.location)))
-    );
 
     /* ----- Description ----- */
 
@@ -2213,16 +2120,9 @@ document.addEventListener('DOMContentLoaded', function(){
   const summaryType      = $('summaryType');
   const summaryName      = $('summaryName');
   const summaryReference = $('summaryReference');
-  const summaryPrice     = $('summaryPrice');
-  const summaryQuantity  = $('summaryQuantity');
 
   const productName      = $('productName');
   const productReference = $('productReference');
-  const productPrice     = $('productPrice');
-  const productQuantity  = $('productQuantity');
-
-  const productStatus = $('productStatus');
-  const statusBadge   = $('statusBadge');
 
 
   /* =========================================================
@@ -2289,59 +2189,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
   productReference?.addEventListener('input', function(){
     summaryReference.textContent = this.value.trim() || '—';
-  });
-
-  productPrice?.addEventListener('input', function(){
-    summaryPrice.textContent =
-      this.value === ''
-        ? '—'
-        : new Intl.NumberFormat('fr-FR').format(Number(this.value)) + ' FCFA';
-  });
-
-  productQuantity?.addEventListener('input', function(){
-    summaryQuantity.textContent = this.value !== '' ? this.value : '0';
-  });
-
-
-  /* =========================================================
-     STATUT
-  ========================================================= */
-
-  function updateStatusBadge(){
-
-    if(!productStatus || !statusBadge){ return; }
-
-    const styles = {
-      actif:     ['Actif',     '#e9f7ef', '#198754'],
-      inactif:   ['Inactif',   '#fcebea', '#dc3545'],
-      brouillon: ['Brouillon', '#fff3cd', '#997404']
-    };
-
-    const selected = styles[productStatus.value] || styles.actif;
-
-    statusBadge.textContent           = selected[0];
-    statusBadge.style.backgroundColor = selected[1];
-    statusBadge.style.color           = selected[2];
-  }
-
-  productStatus?.addEventListener('change', updateStatusBadge);
-
-
-  /* =========================================================
-     BROUILLON
-  ========================================================= */
-
-  $('saveDraftBtn')?.addEventListener('click', function(){
-
-    if(!productStatus || !form){ return; }
-
-    productStatus.value = 'brouillon';
-
-    updateStatusBadge();
-
-    if(form.reportValidity()){
-      form.submit();
-    }
   });
 
 
@@ -2518,11 +2365,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
     if(summaryName){ summaryName.textContent = '—'; }
     if(summaryReference){ summaryReference.textContent = '—'; }
-    if(summaryPrice){ summaryPrice.textContent = '—'; }
-    if(summaryQuantity){ summaryQuantity.textContent = '0'; }
 
     updateImagePreview();
-    updateStatusBadge();
     scrollModalTop();
   });
 
@@ -2531,10 +2375,10 @@ document.addEventListener('DOMContentLoaded', function(){
      RECHERCHE + FILTRES (cartes)
   ========================================================= */
 
-  const searchInput  = $('searchProduct');
-  const filterType   = $('filterType');
-  const filterStatus = $('filterStatus');
-  const noResults    = $('noResults');
+  const searchInput = $('searchProduct');
+  const filterType  = $('filterType');
+  const filterStock = $('filterStock');
+  const noResults   = $('noResults');
 
   const cards = document.querySelectorAll('#productsGrid .product-col');
 
@@ -2542,7 +2386,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     const search = (searchInput?.value || '').toLowerCase().trim();
     const type   = (filterType?.value || '').toLowerCase();
-    const status = (filterStatus?.value || '').toLowerCase();
+    const stock  = (filterStock?.value || '').toLowerCase();
 
     let visibleCount = 0;
 
@@ -2550,9 +2394,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
       const matchesSearch = (card.dataset.search || '').includes(search);
       const matchesType   = !type || (card.dataset.type || '').toLowerCase() === type;
-      const matchesStatus = !status || (card.dataset.status || '').toLowerCase() === status;
+      const matchesStock  = !stock || (card.dataset.stock || '').toLowerCase() === stock;
 
-      const visible = matchesSearch && matchesType && matchesStatus;
+      const visible = matchesSearch && matchesType && matchesStock;
 
       card.classList.toggle('d-none', !visible);
 
@@ -2566,7 +2410,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   searchInput?.addEventListener('input', filterProducts);
   filterType?.addEventListener('change', filterProducts);
-  filterStatus?.addEventListener('change', filterProducts);
+  filterStock?.addEventListener('change', filterProducts);
 
 
   /* =========================================================
@@ -2574,7 +2418,6 @@ document.addEventListener('DOMContentLoaded', function(){
   ========================================================= */
 
   changeProductType('vehicule');
-  updateStatusBadge();
   updatePhotoTitle();
 
 });

@@ -52,77 +52,12 @@
         </div>
     </div>
 
-    <div class="section-card">
-        <div class="section-header"><div class="section-number"><i class="bi bi-cash-coin"></i></div>
-            <div><h2 class="section-title">Achat et conversion</h2></div></div>
-        <div class="section-body">
-            <div class="info-line"><span class="text-muted">Devise d'achat</span><strong>{{ $purchase->currency }}</strong></div>
-            <div class="info-line"><span class="text-muted">Prix d'achat unitaire</span>
-                <strong>{{ number_format($purchase->unit_price, 2, ',', ' ') }} {{ $purchase->currency }}</strong></div>
-            <div class="info-line"><span class="text-muted">Total d'achat (devise d'origine)</span>
-                <strong>{{ number_format($purchase->purchase_total_original, 2, ',', ' ') }} {{ $purchase->currency }}</strong></div>
-            @if($purchase->exchange_rate)
-                <div class="info-line"><span class="text-muted">Taux utilisé</span>
-                    <strong>1 NGN = {{ rtrim(rtrim(number_format($purchase->exchange_rate, 8, '.', ''), '0'), '.') }} XOF
-                        <span class="badge bg-light text-dark border ms-1">{{ $purchase->exchange_rate_source }}</span></strong></div>
-            @endif
-            <div class="info-line"><span class="text-muted">Total d'achat en FCFA</span><strong>{{ $xof($purchase->purchase_total_xof) }}</strong></div>
-        </div>
-    </div>
-
-    <div class="section-card">
-        <div class="section-header"><div class="section-number"><i class="bi bi-truck"></i></div>
-            <div><h2 class="section-title">Frais annexes</h2></div></div>
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="table-light">
-                    <tr><th class="ps-3">Type</th><th>Description</th><th class="text-end">Montant</th><th class="text-end pe-3">En XOF</th></tr>
-                </thead>
-                <tbody>
-                    @forelse($purchase->expenses as $expense)
-                        <tr>
-                            <td class="ps-3">{{ $expenseTypes[$expense->type] ?? $expense->type }}</td>
-                            <td>{{ $expense->description ?: '-' }}</td>
-                            <td class="text-end">{{ number_format($expense->amount, 2, ',', ' ') }} {{ $expense->currency }}</td>
-                            <td class="text-end pe-3">{{ $xof($expense->amount_xof) }}</td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="4" class="text-center text-muted py-3">Aucun frais annexe.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
 
 </div>
 
 <div class="col-12 col-xl-4">
 <div class="sticky-side">
 
-    <div class="section-card">
-        <div class="section-header"><div class="section-number"><i class="bi bi-calculator"></i></div>
-            <div><h2 class="section-title">Prix de revient</h2></div></div>
-        <div class="section-body">
-            <div class="calculation-box">
-                <div class="calculation-row"><span class="text-muted">Achat en FCFA</span><strong>{{ $xof($purchase->purchase_total_xof) }}</strong></div>
-                <div class="calculation-row"><span class="text-muted">Frais annexes</span><strong>{{ $xof($purchase->expenses_total_xof) }}</strong></div>
-                <div class="calculation-row total"><span>Prix de revient total</span><span>{{ $xof($purchase->total_cost_xof) }}</span></div>
-                <div class="calculation-row"><span class="text-muted">Prix de revient unitaire</span><strong>{{ $xof($purchase->unit_cost_xof) }}</strong></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-card">
-        <div class="section-header"><div class="section-number"><i class="bi bi-graph-up-arrow"></i></div>
-            <div><h2 class="section-title">Tarification</h2></div></div>
-        <div class="section-body">
-            <div class="info-line"><span class="text-muted">Prix de vente unitaire</span><strong>{{ $xof($purchase->selling_price) }}</strong></div>
-            <div class="info-line"><span class="text-muted">Marge unitaire</span><strong>{{ $xof($purchase->unit_margin) }}</strong></div>
-            <div class="info-line"><span class="text-muted">Marge %</span>
-                <strong class="{{ $purchase->margin_percent >= 0 ? 'text-success' : 'text-danger' }}">{{ number_format($purchase->margin_percent, 2, ',', ' ') }} %</strong></div>
-            <div class="info-line"><span class="text-muted">Marge totale</span><strong>{{ $xof($purchase->total_margin) }}</strong></div>
-        </div>
-    </div>
 
     <div class="section-card">
         <div class="section-header"><div class="section-number"><i class="bi bi-boxes"></i></div>

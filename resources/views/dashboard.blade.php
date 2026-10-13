@@ -772,7 +772,7 @@
 
     <div class="col-12 col-sm-6 col-xl-3">
 
-        <a href="{{ route('stock.index') }}"
+        <a href="{{ route('stock.alerts') }}"
            class="card-kpi h-100 d-block text-decoration-none text-reset">
 
             <div class="kpi-icon kpi-icon-red mb-3">

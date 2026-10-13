@@ -8,7 +8,7 @@
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
     <div>
         <h1 class="page-title mb-1"><i class="bi bi-boxes me-2" style="color:var(--purple);"></i>Stock</h1>
-        <p class="page-subtitle mb-0">Niveaux de stock et alertes par produit.</p>
+        <p class="page-subtitle mb-0">Quantités, seuils d'alerte et sorties de stock.</p>
     </div>
 
     <div class="d-flex gap-2 flex-wrap">
@@ -23,6 +23,26 @@
         </button>
     </div>
 </div>
+
+{{-- Alerte de seuil --}}
+@if($alertProducts->isNotEmpty())
+    <div class="alert alert-warning d-flex align-items-start gap-3 mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+        <div>
+            <div class="fw-semibold mb-1">
+                {{ $alertProducts->count() }}
+                produit{{ $alertProducts->count() > 1 ? 's ont' : ' a' }}
+                atteint le seuil d'alerte ou {{ $alertProducts->count() > 1 ? 'sont' : 'est' }} en rupture
+            </div>
+            <div class="small">
+                {{ $alertProducts->take(6)->pluck('name')->implode(', ') }}
+                @if($alertProducts->count() > 6)
+                    et {{ $alertProducts->count() - 6 }} autre(s)…
+                @endif
+            </div>
+        </div>
+    </div>
+@endif
 
 <div class="row g-3 mb-4">
     <div class="col-12 col-md-4">
@@ -46,7 +66,7 @@
     <div class="col-12 col-md-4">
         <div class="section-card mb-0"><div class="section-body d-flex justify-content-between align-items-center">
             <div>
-                <div class="text-muted mb-1">Stocks faibles</div>
+                <div class="text-muted mb-1">Alertes de stock</div>
                 <div class="stat-number text-danger">{{ $stockFaible }}</div>
             </div>
             <i class="bi bi-exclamation-triangle fs-3 text-danger"></i>
@@ -65,11 +85,11 @@
                 <tr>
                     <th class="ps-3">Référence</th>
                     <th>Produit</th>
-                    <th>Catégorie</th>
                     <th>Type</th>
-                    <th>Stock</th>
-                    <th>Seuil minimum</th>
+                    <th class="text-center">Quantité</th>
+                    <th class="text-center">Seuil d'alerte</th>
                     <th>État</th>
+                    <th class="text-end pe-3">Seuil</th>
                 </tr>
             </thead>
             <tbody>
@@ -77,7 +97,6 @@
                     <tr>
                         <td class="ps-3 fw-semibold">{{ $product->reference }}</td>
                         <td>{{ $product->name }}</td>
-                        <td>{{ $product->category }}</td>
                         <td>
                             @if($product->type === 'piece')
                                 <span class="badge bg-warning text-dark">Pièce</span>
@@ -85,16 +104,28 @@
                                 <span class="badge bg-info text-dark">Véhicule</span>
                             @endif
                         </td>
-                        <td class="fw-bold">{{ $product->quantity }}</td>
-                        <td>{{ $product->stock_minimum }}</td>
+                        <td class="fw-bold text-center">{{ $product->quantity }}</td>
+                        <td class="text-center">{{ $product->stock_minimum }}</td>
                         <td>
-                            @if($product->quantity == 0)
+                            @if($product->quantity <= 0)
                                 <span class="badge bg-danger">Rupture</span>
                             @elseif($product->quantity <= $product->stock_minimum)
-                                <span class="badge bg-warning text-dark">Stock faible</span>
+                                <span class="badge bg-warning text-dark">Seuil atteint</span>
                             @else
                                 <span class="badge bg-success">Normal</span>
                             @endif
+                        </td>
+                        <td class="text-end pe-3">
+                            <button type="button"
+                                    class="btn btn-sm btn-light border"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#thresholdModal"
+                                    data-name="{{ $product->name }}"
+                                    data-reference="{{ $product->reference }}"
+                                    data-min="{{ $product->stock_minimum }}"
+                                    data-url="{{ route('stock.threshold.update', $product) }}">
+                                <i class="bi bi-sliders me-1"></i>Régler
+                            </button>
                         </td>
                     </tr>
                 @empty
@@ -106,6 +137,43 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+</div>
+
+{{-- MODAL : SEUIL D'ALERTE --}}
+<div class="modal fade" id="thresholdModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" action="" id="thresholdForm">
+                @csrf
+                @method('PATCH')
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Seuil d'alerte</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="fw-semibold" id="thresholdName">Produit</div>
+                        <div class="small text-muted" id="thresholdRef">Référence</div>
+                    </div>
+
+                    <label class="form-label" for="thresholdValue">Alerter quand la quantité est inférieure ou égale à</label>
+                    <input type="number" name="stock_minimum" id="thresholdValue"
+                           class="form-control" min="0" step="1" required>
+
+                    <div class="form-text">
+                        Exemple : avec un seuil de 3, l'alerte s'affiche quand il reste 3 unités ou moins.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-purple"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -160,3 +228,24 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('thresholdModal');
+        const form  = document.getElementById('thresholdForm');
+
+        if (!modal || !form) { return; }
+
+        modal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (!button) { return; }
+
+            form.action = button.getAttribute('data-url') || '';
+            document.getElementById('thresholdName').textContent = button.getAttribute('data-name') || 'Produit';
+            document.getElementById('thresholdRef').textContent  = 'Réf. : ' + (button.getAttribute('data-reference') || '—');
+            document.getElementById('thresholdValue').value      = button.getAttribute('data-min') || '0';
+        });
+    });
+</script>
+@endpush

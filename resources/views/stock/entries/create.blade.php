@@ -22,63 +22,10 @@
 
 <div class="row g-4">
 <div class="col-12 col-xl-8">
-
-    {{-- 1. INFORMATIONS --}}
+   {{-- 1. PRODUIT --}}
     <div class="section-card">
         <div class="section-header">
             <div class="section-number">1</div>
-            <div>
-                <h2 class="section-title">Informations de l'approvisionnement</h2>
-                <p class="section-description">Source et date de l'entrée en stock.</p>
-            </div>
-        </div>
-        <div class="section-body">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Numéro d'achat</label>
-                    <input type="text" class="form-control" value="{{ $nextNumber }}" readonly>
-                    <div class="form-text">Attribué définitivement à l'enregistrement.</div>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label" for="purchase_date">Date de l'achat <span class="required">*</span></label>
-                    <input type="date" name="purchase_date" id="purchase_date" class="form-control"
-                           value="{{ old('purchase_date', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}" required>
-                </div>
-
-                <div class="col-md-8">
-                    <label class="form-label" for="supplierSelect">Fournisseur <span class="required">*</span></label>
-                    <select name="supplier_id" id="supplierSelect" class="form-select">
-                        <option value="">Sélectionner un fournisseur</option>
-                        @foreach($suppliers as $supplier)
-                            <option value="{{ $supplier->id }}"
-                                {{ (string) old('supplier_id') === (string) $supplier->id ? 'selected' : '' }}>
-                                {{ $supplier->name }}
-                            </option>
-                        @endforeach
-                        <option value="__new" {{ old('new_supplier') ? 'selected' : '' }}>+ Nouveau fournisseur…</option>
-                    </select>
-                    <input type="text" name="new_supplier" id="newSupplier" class="form-control mt-2 d-none"
-                           placeholder="Nom du nouveau fournisseur" value="{{ old('new_supplier') }}">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label" for="supplier_reference">Référence fournisseur</label>
-                    <input type="text" name="supplier_reference" id="supplier_reference" class="form-control"
-                           placeholder="Facture / BL" value="{{ old('supplier_reference') }}">
-                </div>
-
-                <div class="col-12">
-                    <label class="form-label" for="observation">Observation</label>
-                    <textarea name="observation" id="observation"class="form-control" rows="3"
-                              placeholder="Informations complémentaires…">{{ old('observation') }}</textarea>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- 2. PRODUIT --}}
-    <div class="section-card">
-        <div class="section-header">
-            <div class="section-number">2</div>
             <div>
                 <h2 class="section-title">Produit à approvisionner</h2>
                 <p class="section-description">Sélectionnez le produit qui entre en stock.</p>
@@ -144,136 +91,50 @@
             </div>
         </div>
     </div>
-   
-
-{{-- 3. PRIX D'ACHAT --}}
-<div class="section-card">
-    <div class="section-header">
-        <div class="section-number">3</div>
-        <div>
-            <h2 class="section-title">Prix d'achat et devise</h2>
-            <p class="section-description">
-                Saisissez le prix unitaire et choisissez la devise.
-                La conversion en FCFA est automatique.
-            </p>
-        </div>
-    </div>
-
-    <div class="section-body">
-        <div class="row g-3 align-items-end">
-
-            {{-- Prix d'achat unitaire --}}
-            <div class="col-12 col-md-4">
-                <label class="form-label" for="unit_price">
-                    Prix d'achat unitaire
-                    <span class="required">*</span>
-                </label>
-
-                <input
-                    type="number"
-                    name="unit_price"
-                    id="unit_price"
-                    class="form-control"
-                    min="0"
-                    step="0.01"
-                    value="{{ old('unit_price', 0) }}"
-                    placeholder="Montant"
-                    required
-                >
-            </div>
-
-            {{-- Devise de conversion --}}
-            <div class="col-12 col-md-4">
-                <label class="form-label" for="currency">
-                    Devise
-                    <span class="required">*</span>
-                </label>
-
-                <select
-                    name="currency"
-                    id="currency"
-                    class="form-select"
-                    required
-                >
-                    @foreach($currencies as $value => $label)
-                        <option
-                            value="{{ $value }}"
-                            {{ old('currency', 'NGN') === $value ? 'selected' : '' }}
-                        >
-                            {{ $value }} → XOF
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            {{-- Prix total converti --}}
-            <div class="col-12 col-md-4">
-                <label class="form-label">
-                    Prix total en FCFA
-                </label>
-
-                <div class="input-group">
-                    <input
-                        type="text"
-                        id="convertedTotal"
-                        class="form-control fw-semibold text-success"
-                        value="0"
-                        readonly
-                    >
-
-                    <span class="input-group-text">XOF</span>
-                </div>
-            </div>
-
-        </div>
-
-        {{-- Taux transmis au contrôleur, sans saisie manuelle --}}
-        <input
-            type="hidden"
-            name="exchange_rate"
-            id="exchange_rate"
-            value="{{ old('exchange_rate', (($rates[old('currency', 'NGN')] ?? null)?->rate)) }}"
-        >
-
-        <div class="small text-muted mt-3" id="exchangeRateHelp"></div>
-
-    </div>
-</div>
-
-
-
-    {{-- 4. FRAIS ANNEXES --}}
+    {{-- 2. INFORMATIONS --}}
     <div class="section-card">
         <div class="section-header">
-            <div class="section-number">4</div>
-            <div class="flex-grow-1">
-                <h2 class="section-title">Frais annexes</h2>
-                <p class="section-description">Transport, douane,manutention, frais de dossier, etc.</p>
+            <div class="section-number">2</div>
+            <div>
+                <h2 class="section-title">Informations de l'approvisionnement</h2>
+                <p class="section-description">Source et date de l'entrée en stock.</p>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="addExpense">
-                <i class="bi bi-plus-lg me-1"></i>Ajouter un frais
-            </button>
         </div>
         <div class="section-body">
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead>
-                        <tr><th>Type</th><th>Description</th><th style="width:160px">Montant</th><th style="width:100px">Devise</th><th></th></tr>
-                    </thead>
-                    <tbody id="expensesBody"></tbody>
-                </table>
-            </div>
-            <div class="text-center text-muted py-3" id="emptyExpense">
-                <i class="bi bi-receipt fs-4 d-block mb-1"></i>Aucun frais annexe ajouté.
-            </div>
-            <div class="text-end mt-3">
-                <span class="text-muted">Total des frais :</span>
-                <strong id="expensesTotal">0 XOF</strong>
+            <div class="row g-3">
+
+
+                <div class="col-md-8">
+                    <label class="form-label" for="supplierSelect">Fournisseur <span class="required">*</span></label>
+                    <select name="supplier_id" id="supplierSelect" class="form-select">
+                        <option value="">Sélectionner un fournisseur</option>
+                        @foreach($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}"
+                                {{ (string) old('supplier_id') === (string) $supplier->id ? 'selected' : '' }}>
+                                {{ $supplier->name }}
+                            </option>
+                        @endforeach
+                        <option value="__new" {{ old('new_supplier') ? 'selected' : '' }}>+ Nouveau fournisseur…</option>
+                    </select>
+                    <input type="text" name="new_supplier" id="newSupplier" class="form-control mt-2 d-none"
+                           placeholder="Nom du nouveau fournisseur" value="{{ old('new_supplier') }}">
+                </div>
+<div class="col-md-4">
+    <label class="form-label" for="supplier_reference">Numéro du fournisseur</label>
+    <input
+        type="text"
+        name="supplier_reference"
+        id="supplier_reference"
+        class="form-control"
+        placeholder="Numéro du fournisseur"
+        value="{{ old('supplier_reference') }}"
+    >
+</div>
             </div>
         </div>
     </div>
 
-
+ 
 </div>
 
 {{-- COLONNE DROITE --}}
@@ -307,8 +168,8 @@
             <div class="info-line"><span class="text-muted">Produit</span><strong id="previewProduct">-</strong></div>
             <div class="info-line"><span class="text-muted">Type</span><span class="badge bg-success">Entrée</span></div>
             <div class="info-line"><span class="text-muted">Quantité</span><strong id="previewMovementQuantity">+0</strong></div>
-            <div class="info-line"><span class="text-muted">Stockavant</span><strong id="previewStockBefore">0</strong></div>
-            <div class="info-line"><span class="text-muted">Stockaprès</span><strong id="previewStockAfter">0</strong></div>
+            <div class="info-line"><span class="text-muted">Stock avant</span><strong id="previewStockBefore">0</strong></div>
+            <div class="info-line"><span class="text-muted">Stock après</span><strong id="previewStockAfter">0</strong></div>
         </div>
     </div>
 
@@ -319,15 +180,8 @@
         </div>
         <div class="section-body">
             <div class="info-line"><span class="text-muted">Utilisateur</span><strong>{{ Auth::user()->name }}</strong></div>
-            <div class="info-line"><span class="text-muted">Devise d'origine</span><strong id="traceCurrency">NGN</strong></div>
-            <div class="info-line"><span class="text-muted">Taux utilisé</span><strong id="traceRate">-</strong></div>
-            <div class="small text-muted mt-2">La date et l'heured'enregistrement sont ajoutées automatiquement.</div>
+            <div class="small text-muted mt-2">La date et l'heure d'enregistrement sont ajoutées automatiquement.</div>
         </div>
-    </div>
-
-    <div class="alert alert-warning">
-        <i class="bi bi-info-circle-fill me-2"></i><strong>Rappel:</strong>
-        la validation augmente le stock, met à jour le prix de revient et le prix de vente du produit, et crée un mouvement d'entrée.
     </div>
 
 </div>
@@ -347,281 +201,247 @@
 @endsection
 
 @push('scripts')
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
     const $ = id => document.getElementById(id);
-    const fmt = v => new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 }).format(v);
 
-    const expenseTypes = @json($expenseTypes);
-    const oldExpenses  = @json(old('expenses', []));
-    const currencyOptions = @json(array_keys($currencies));
-    const rates = {
-        NGN: {
-            rate: @json(($rates['NGN'] ?? null)?->rate),
-            date: @json(($rates['NGN'] ?? null)?->rate_date?->format('d/m/Y')),
-            source: @json(($rates['NGN'] ?? null)?->source),
-            stale: @json(($rates['NGN'] ?? null)?->isStale()),
-        },
-        EUR: {
-            rate: @json(($rates['EUR'] ?? null)?->rate),
-            date: @json(($rates['EUR'] ?? null)?->rate_date?->format('d/m/Y')),
-            source: @json(($rates['EUR'] ?? null)?->source),
-            stale: @json(($rates['EUR'] ?? null)?->isStale()),
-        },
-        USD: {
-            rate: @json(($rates['USD'] ?? null)?->rate),
-            date: @json(($rates['USD'] ?? null)?->rate_date?->format('d/m/Y')),
-            source: @json(($rates['USD'] ?? null)?->source),
-            stale: @json(($rates['USD'] ?? null)?->isStale()),
-        },
-    };
+    const fmt = value =>
+        new Intl.NumberFormat('fr-FR', {
+            maximumFractionDigits: 2
+        }).format(value);
 
     let selectedStock = 0;
-    let expenseIndex  = 0;
 
-    /* ---------- Fournisseur ---------- */
+    /* =========================================
+       FOURNISSEUR
+    ========================================= */
+
     const supplierSelect = $('supplierSelect');
-    const newSupplier    = $('newSupplier');
+    const newSupplier = $('newSupplier');
 
     function toggleNewSupplier() {
         const isNew = supplierSelect.value === '__new';
+
         newSupplier.classList.toggle('d-none', !isNew);
-        if (!isNew) newSupplier.value = '';
+        newSupplier.required = isNew;
+
+        if (!isNew) {
+            newSupplier.value = '';
+        }
     }
+
     supplierSelect.addEventListener('change', toggleNewSupplier);
     toggleNewSupplier();
 
-    /* ---------- Produit ---------- */
-    const productSearch  = $('productSearch');
-    const productResults = $('productResults');
-    const items = () => document.querySelectorAll('.product-result-item');
+    /* =========================================
+       RECHERCHE DU PRODUIT
+    ========================================= */
 
-    productSearch.addEventListener('focus', () => productResults.classList.add('show'));
-    productSearch.addEventListener('input', function () {
-        const s = productSearch.value.toLowerCase().trim();
-        items().forEach(i => {
-            const ok = i.dataset.name.toLowerCase().includes(s) || i.dataset.reference.toLowerCase().includes(s);
-            i.style.display = ok ? '' : 'none';
-        });
+    const productSearch = $('productSearch');
+    const productResults = $('productResults');
+    const productId = $('productId');
+
+    const items = () =>
+        document.querySelectorAll('.product-result-item');
+
+    productSearch.addEventListener('focus', function () {
         productResults.classList.add('show');
     });
-    document.addEventListener('click', e => {
-        if (!e.target.closest('.product-search-wrapper')) productResults.classList.remove('show');
+
+    productSearch.addEventListener('input', function () {
+        const search = productSearch.value.toLowerCase().trim();
+
+        // Une nouvelle recherche exige une nouvelle sélection.
+        productId.value = '';
+        selectedStock = 0;
+
+        $('selectedProduct').classList.remove('show');
+        $('previewProduct').textContent = '-';
+
+        items().forEach(item => {
+            const name = (item.dataset.name || '').toLowerCase();
+            const reference = (item.dataset.reference || '').toLowerCase();
+
+            const matches =
+                name.includes(search) ||
+                reference.includes(search);
+
+            item.style.display = matches ? '' : 'none';
+        });
+
+        productResults.classList.add('show');
+        updateStockPreview();
     });
 
-    function selectProduct(item, fillPrices) {
-        $('productId').value = item.dataset.id;
-        $('selectedProductName').textContent = item.dataset.name;
-        $('selectedProductReference').textContent = item.dataset.reference;
-        $('selectedProductType').textContent = item.dataset.type === 'piece' ? 'Pièce détachée' : 'Véhicule';
-        const cost = parseFloat(item.dataset.cost) || 0;
-        $('selectedProductCost').textContent = cost > 0 ? fmt(cost) + ' XOF' : '-';
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('.product-search-wrapper')) {
+            productResults.classList.remove('show');
+        }
+    });
+
+    /* =========================================
+       SÉLECTION DU PRODUIT
+    ========================================= */
+
+    function selectProduct(item) {
+        productId.value = item.dataset.id;
+
+        $('selectedProductName').textContent =
+            item.dataset.name || '';
+
+        $('selectedProductReference').textContent =
+            item.dataset.reference || '';
+
+        $('selectedProductType').textContent =
+            item.dataset.type === 'piece'
+                ? 'Pièce détachée'
+                : 'Véhicule';
+
+        // Le prix affiché ici est informatif uniquement.
+        // Aucun prix n'est modifié par cette entrée de stock.
+        const cost = Number(item.dataset.cost) || 0;
+
+        $('selectedProductCost').textContent =
+            cost > 0 ? fmt(cost) + ' XOF' : '-';
+
         $('selectedProduct').classList.add('show');
-        $('previewProduct').textContent = item.dataset.name;
-        productSearch.value = item.dataset.name;
-        selectedStock = parseFloat(item.dataset.stock) || 0;
 
-        if (fillPrices) {
-            $('selling_price').value = item.dataset.price || 0;
-            const unit = item.dataset.unit;
-            if (unit && $('unit').querySelector('option[value="' + unit + '"]')) $('unit').value = unit;
+        $('previewProduct').textContent =
+            item.dataset.name || '-';
+
+        productSearch.value = item.dataset.name || '';
+
+        selectedStock = Number(item.dataset.stock) || 0;
+
+        // Préremplir l'unité si elle existe dans la liste.
+        const unit = item.dataset.unit;
+
+        if (unit) {
+            const unitOption = Array.from($('unit').options)
+                .find(option => option.value === unit);
+
+            if (unitOption) {
+                $('unit').value = unit;
+            }
         }
+
+        items().forEach(product => {
+            product.style.display = '';
+        });
+
         productResults.classList.remove('show');
-        update();
+
+        updateStockPreview();
     }
 
-    productResults.addEventListener('click', e => {
-        const item = e.target.closest('.product-result-item');
-        if (item) selectProduct(item, true);
-    });
+    productResults.addEventListener('click', function (event) {
+        const item = event.target.closest('.product-result-item');
 
-    /* ---------- Frais annexes ---------- */
-    const expensesBody = $('expensesBody');
-
-    function addExpense(data = {}) {
-        const i = expenseIndex++;
-        const opts = Object.entries(expenseTypes)
-            .map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
-        const row = document.createElement('tr');
-        row.className = 'expense-row';
-        row.innerHTML = `
-            <td><select name="expenses[${i}][type]" class="form-select">${opts}</select></td>
-            <td><input type="text" name="expenses[${i}][description]" class="form-control" placeholder="Description"></td>
-            <td><input type="number" name="expenses[${i}][amount]" class="form-control expense-amount" min="0" step="0.01" value="0"></td>
-            <td><select name="expenses[${i}][currency]" class="form-select expense-currency">
-                ${currencyOptions.map(code => `<option value="${code}">${code}</option>`).join('')}</select></td>
-            <td><button type="button" class="btn btn-sm btn-lightborder remove-expense"><i class="bi bi-trash"></i></button></td>`;
-        expensesBody.appendChild(row);
-
-        if (data.type) row.querySelector(`[name="expenses[${i}][type]"]`).value = data.type;
-        if (data.description) row.querySelector(`[name="expenses[${i}][description]"]`).value = data.description;
-        if (data.amount !== undefined) row.querySelector('.expense-amount').value = data.amount;
-        if (data.currency) row.querySelector('.expense-currency').value = data.currency;
-
-        row.querySelector('.expense-amount').addEventListener('input', update);
-        row.querySelector('.expense-currency').addEventListener('change', update);
-        row.querySelector('.remove-expense').addEventListener('click', () => { row.remove(); update(); });
-        update();
-    }
-
-    $('addExpense').addEventListener('click', () => addExpense());
-
-    /* ---------- Devises et taux ---------- */
-  
-function setRateForCurrency(resetRate = true) {
-    const cur = $('currency').value;
-    const rateInput = $('exchange_rate');
-    const help = $('exchangeRateHelp');
-
-    if (cur === 'XOF') {
-        rateInput.value = 1;
-        help.textContent = 'Conversion XOF → XOF : aucun change nécessaire.';
-        return;
-    }
-
-    const info = rates[cur];
-    const rate = info && Number(info.rate) > 0
-        ? Number(info.rate)
-        : 0;
-
-    if (resetRate || !rateInput.value) {
-        rateInput.value = rate || '';
-    }
-
-    if (!rate) {
-        help.textContent =
-            `Aucun taux enregistré pour ${cur}. Vérifiez les taux de change dans Laravel.`;
-        return;
-    }
-
-    help.textContent =
-        `Taux utilisé : 1 ${cur} = ${fmt(rate)} XOF` +
-        (info.date ? ` · Mise à jour : ${info.date}` : '');
-}
-
-
-    function toXof(amount, currency, purchaseCurrency, purchaseRate) {
-        if (currency === 'XOF') return amount;
-
-        if (currency === purchaseCurrency && purchaseRate > 0) {
-            return amount * purchaseRate;
+        if (item) {
+            selectProduct(item);
         }
+    });
 
-        const rateInfo = rates[currency];
-        return rateInfo && Number(rateInfo.rate) > 0
-            ? amount * Number(rateInfo.rate)
+    /* =========================================
+       APERÇU DU STOCK
+    ========================================= */
+
+    function updateStockPreview() {
+        const hasProduct = Boolean(productId.value);
+
+        const quantity = hasProduct
+            ? Math.max(0, Number($('quantity').value) || 0)
             : 0;
+
+        const stockBefore = hasProduct ? selectedStock : 0;
+        const stockAfter = stockBefore + quantity;
+
+        // Carte « Stock après entrée »
+        $('currentStock').textContent = fmt(stockBefore);
+        $('previewQuantity').textContent = fmt(quantity);
+        $('newStock').textContent = fmt(stockAfter);
+
+        // Carte « Mouvement créé »
+        $('previewMovementQuantity').textContent =
+            '+' + fmt(quantity);
+
+        $('previewStockBefore').textContent =
+            fmt(stockBefore);
+
+        $('previewStockAfter').textContent =
+            fmt(stockAfter);
     }
 
-    /* ---------- Calculs ---------- */
-  
-function update() {
-    const qty = parseFloat($('quantity').value) || 0;
-    const price = parseFloat($('unit_price').value) || 0;
-    const cur = $('currency').value;
+    $('quantity').addEventListener(
+        'input',
+        updateStockPreview
+    );
 
-    const rate = cur === 'XOF'
-        ? 1
-        : (parseFloat($('exchange_rate').value) || 0);
+    $('unit').addEventListener(
+        'change',
+        updateStockPreview
+    );
 
-    // Prix total d'achat converti en FCFA
-    const purchase = qty * price;
-    const purchaseX = purchase * rate;
+    /* =========================================
+       VALIDATION AVANT ENREGISTREMENT
+    ========================================= */
 
-    $('convertedTotal').value = fmt(purchaseX);
+    $('stockEntryForm').addEventListener('submit', function (event) {
+        if (!productId.value) {
+            event.preventDefault();
 
-    // Conversion des frais annexes
-    let expenses = 0;
-    const rows = document.querySelectorAll('.expense-row');
-
-    rows.forEach(row => {
-        const amount =
-            parseFloat(row.querySelector('.expense-amount').value) || 0;
-
-        const expenseCurrency =
-            row.querySelector('.expense-currency').value;
-
-        expenses += toXof(amount, expenseCurrency, cur, rate);
-    });
-
-    $('emptyExpense').style.display = rows.length ? 'none' : 'block';
-    $('expensesTotal').textContent = fmt(expenses) + ' XOF';
-
-    // Prix de revient
-    const total = purchaseX + expenses;
-    const unit = qty > 0 ? total / qty : 0;
-
-    $('costPurchase').textContent = fmt(purchaseX) + ' XOF';
-    $('costExpenses').textContent = fmt(expenses) + ' XOF';
-    $('totalCost').textContent = fmt(total) + ' XOF';
-    $('unitCost').textContent = fmt(unit) + ' XOF';
-
-    // Marges
-    const sale = parseFloat($('selling_price').value) || 0;
-    const margin = sale - unit;
-
-    $('unitMargin').value = fmt(margin);
-    $('marginPercentage').value =
-        fmt(unit > 0 ? margin / unit * 100 : 0) + ' %';
-
-    $('totalMargin').textContent = fmt(margin * qty) + ' XOF';
-
-    // Aperçu du stock
-    const after = selectedStock + qty;
-
-    $('currentStock').textContent = fmt(selectedStock);
-    $('previewQuantity').textContent = fmt(qty);
-    $('newStock').textContent = fmt(after);
-    $('previewMovementQuantity').textContent = '+' + fmt(qty);
-    $('previewStockBefore').textContent = fmt(selectedStock);
-    $('previewStockAfter').textContent = fmt(after);
-
-    // Traçabilité
-    $('traceCurrency').textContent = cur;
-    $('traceRate').textContent =
-        `1 ${cur} = ${fmt(rate)} XOF`;
-}
-
-
-    ['quantity', 'unit_price', 'exchange_rate', 'selling_price'].forEach(id => {
-        $(id).addEventListener('input', update);
-    });
-
-    $('currency').addEventListener('change', function () {
-        setRateForCurrency(true);
-        update();
-    });
-
-    /* ---------- Envoi ---------- */
-    $('stockEntryForm').addEventListener('submit', function (e) {
-        if (!$('productId').value) {
-            e.preventDefault();
             alert('Veuillez sélectionner un produit.');
+
             productSearch.focus();
             return;
         }
+
+        const quantity = Number($('quantity').value);
+
+        if (!Number.isInteger(quantity) || quantity < 1) {
+            event.preventDefault();
+
+            alert('Veuillez saisir une quantité entière supérieure à zéro.');
+
+            $('quantity').focus();
+            return;
+        }
+
         if (supplierSelect.value === '__new') {
             if (!newSupplier.value.trim()) {
-                e.preventDefault();
+                event.preventDefault();
+
                 alert('Veuillez saisir le nom du nouveau fournisseur.');
+
                 newSupplier.focus();
                 return;
             }
-            supplierSelect.disabled = true; // seul new_supplier est envoyé
+
+            // Le contrôleur reçoit new_supplier pour créer le fournisseur.
+            supplierSelect.disabled = true;
         }
     });
 
-    /* ---------- Initialisation (réaffichage après erreur) ---------- */
-    setRateForCurrency(false);
-    Object.values(oldExpenses).forEach(addExpense);
+    /* =========================================
+       INITIALISATION
+    ========================================= */
 
-    const oldProduct = $('productId').value;
-    if (oldProduct) {
-        const item = document.querySelector('.product-result-item[data-id="' + oldProduct + '"]');
-        if (item) selectProduct(item, false);
+    const oldProductId = productId.value;
+
+    if (oldProductId) {
+        const oldProduct = document.querySelector(
+            '.product-result-item[data-id="' + oldProductId + '"]'
+        );
+
+        if (oldProduct) {
+            selectProduct(oldProduct);
+        } else {
+            updateStockPreview();
+        }
+    } else {
+        updateStockPreview();
     }
-    update();
 });
 </script>
 @endpush

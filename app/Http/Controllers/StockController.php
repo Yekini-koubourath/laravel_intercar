@@ -21,16 +21,41 @@ class StockController extends Controller
 
         $totalStock = $products->sum('quantity');
 
-        $stockFaible = $products->filter(function ($product) {
+        $alertProducts = $products->filter(function ($product) {
             return $product->quantity <= $product->stock_minimum;
-        })->count();
+        })->values();
+
+        $stockFaible = $alertProducts->count();
 
         return view('stock.index', compact(
             'products',
             'totalProducts',
             'totalStock',
-            'stockFaible'
+            'stockFaible',
+            'alertProducts'
         ));
+    }
+
+    /**
+     * Définir le seuil d'alerte d'un produit.
+     */
+    public function updateThreshold(Request $request, Product $product)
+    {
+        $data = $request->validate([
+            'stock_minimum' => ['required', 'integer', 'min:0'],
+        ], [
+            'stock_minimum.required' => 'Le seuil est obligatoire.',
+            'stock_minimum.integer'  => 'Le seuil doit être un nombre entier.',
+            'stock_minimum.min'      => 'Le seuil ne peut pas être négatif.',
+        ]);
+
+        $product->update([
+            'stock_minimum' => $data['stock_minimum'],
+        ]);
+
+        return redirect()
+            ->route('stock.index')
+            ->with('success', 'Seuil d\'alerte de « ' . $product->name . ' » mis à jour.');
     }
 
     /**
@@ -65,15 +90,15 @@ class StockController extends Controller
 
     /**
      * Enregistrer une SORTIE de stock.
-     * (Les entrées passent par StockEntryController.)
+     * (Les entrées passent par la Tarification / StockEntryController.)
      */
     public function store(Request $request)
     {
         $request->validate([
-            'product_id' => ['required', 'exists:products,id'],
-            'type' => ['required', 'in:sortie'],
-            'quantity' => ['required', 'integer', 'min:1'],
-            'motif' => ['nullable', 'string', 'max:255'],
+            'product_id'  => ['required', 'exists:products,id'],
+            'type'        => ['required', 'in:sortie'],
+            'quantity'    => ['required', 'integer', 'min:1'],
+            'motif'       => ['nullable', 'string', 'max:255'],
             'observation' => ['nullable', 'string'],
         ]);
 
@@ -95,13 +120,13 @@ class StockController extends Controller
             ]);
 
             StockMovement::create([
-                'product_id' => $product->id,
-                'user_id' => Auth::id(),
-                'type' => $request->type,
-                'quantity' => $request->quantity,
+                'product_id'  => $product->id,
+                'user_id'     => Auth::id(),
+                'type'        => $request->type,
+                'quantity'    => $request->quantity,
                 'stock_avant' => $stockAvant,
                 'stock_apres' => $stockApres,
-                'motif' => $request->motif,
+                'motif'       => $request->motif,
                 'observation' => $request->observation,
             ]);
         });

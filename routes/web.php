@@ -105,7 +105,10 @@ Route::middleware('auth')->group(function () {
         StockController::class,
         'store'
     ])->name('stock.movements.store');
-
+    Route::patch('/stock/{product}/seuil', [
+        StockController::class,
+        'updateThreshold'
+    ])->name('stock.threshold.update');
     // =========================================================
     // ENTREES DE STOCK
     // =========================================================
@@ -177,10 +180,16 @@ Route::get('/ventes/{sale}', [
 // TARIFICATION
 // =========================================================
 
+
 Route::get('/tarification', [
     TarificationController::class,
     'index'
 ])->name('tarification.index');
+
+Route::post('/tarification', [
+    TarificationController::class,
+    'store'
+])->name('tarification.store');
 
 Route::patch('/tarification/{product}', [
     TarificationController::class,
