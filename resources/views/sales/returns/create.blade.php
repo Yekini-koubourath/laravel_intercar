@@ -84,11 +84,9 @@
 
 <body>
 
-<aside class="app-sidebar">
 
     @include('auth.partials.sidebar')
 
-</aside>
 
 
 <div class="main-wrapper">
